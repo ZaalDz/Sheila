@@ -3,5 +3,5 @@ from car.controller_client import receive_commands
 from threading import Thread
 
 if __name__ == '__main__':
-    Thread(target=start_video_streaming).start()
     Thread(target=receive_commands).start()
+    Thread(target=start_video_streaming).start()
