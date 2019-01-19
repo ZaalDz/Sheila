@@ -1,8 +1,9 @@
 import io
 import socket
 import struct
-from PIL import Image
+import cv2
 from settings import PORT
+import numpy as np
 
 
 def video_streaming():
@@ -28,13 +29,13 @@ def video_streaming():
             # Rewind the stream, open it as an image with PIL and do some
             # processing on it
             image_stream.seek(0)
-            image = Image.open(image_stream)
-            print('Image is %dx%d' % image.size)
-            image.verify()
-            print('Image is verified')
+            frame = cv2.imdecode(np.fromstring(image_stream.getvalue(), dtype=np.uint8), 1)
+            cv2.imshow("demo", frame)
+
     finally:
         connection.close()
         server_socket.close()
+        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
