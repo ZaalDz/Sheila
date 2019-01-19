@@ -37,7 +37,7 @@ def send_video_stream(connection):
     connection.write(struct.pack('<L', 0))
 
 
-def connect_to_server(client_socket, ip, port) -> socket.socket:
+def connect_to_server(client_socket, ip, port):
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
     client_socket.connect((IP, PORT))
@@ -50,9 +50,13 @@ def connect_to_server(client_socket, ip, port) -> socket.socket:
 def main():
     client_socket = socket.socket()
     while True:
-        connection = connect_to_server(client_socket, IP, PORT)
+        time.sleep(2)
         try:
+            print('Trying to start streaming')
+            connection = connect_to_server(client_socket, IP, PORT)
             send_video_stream(connection)
+        except ConnectionRefusedError:
+            pass
         finally:
             connection.close()
             client_socket.close()
