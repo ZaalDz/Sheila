@@ -1,5 +1,6 @@
 STREAMING_PORT = 8888
-STREAMING_IP = '*'
+CONTROLLER_PORT = 5555
+IP = '*'
 
 try:
     from custom_settings import *

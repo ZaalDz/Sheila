@@ -1,5 +1,7 @@
-from car.camera_client import main
+from car.camera_client import start_video_streaming
+from car.controller_client import receive_commands
 from threading import Thread
 
 if __name__ == '__main__':
-    Thread(target=main).start()
+    Thread(target=start_video_streaming).start()
+    Thread(target=receive_commands).start()
