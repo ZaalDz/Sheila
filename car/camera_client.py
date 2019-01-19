@@ -2,7 +2,6 @@ import io
 import socket
 import struct
 import time
-from threading import Thread
 
 import picamera
 
@@ -64,7 +63,3 @@ def main():
 
         finally:
             client_socket.close()
-
-
-if __name__ == '__main__':
-    Thread(target=main).start()

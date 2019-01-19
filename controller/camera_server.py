@@ -1,9 +1,11 @@
 import io
 import socket
 import struct
+
 import cv2
-from settings import PORT
 import numpy as np
+
+from settings import PORT
 
 
 def receive_video_stream():
@@ -44,7 +46,3 @@ def receive_video_stream():
     finally:
         connection.close()
         server_socket.close()
-
-
-if __name__ == '__main__':
-    receive_video_stream()
