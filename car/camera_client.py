@@ -5,7 +5,7 @@ import time
 
 import picamera
 
-from settings import PORT, IP
+from settings import STREAMING_PORT, STREAMING_IP
 
 
 def send_video_stream(connection):
@@ -54,12 +54,9 @@ def main():
     while True:
         time.sleep(5)
         try:
-            client_socket = socket.socket()
-            print('Trying to start streaming')
-            connection = connect_to_server(client_socket, IP, PORT)
-            send_video_stream(connection)
+            with socket.socket() as client_socket:
+                print('Trying to start streaming')
+                connection = connect_to_server(client_socket, STREAMING_IP, STREAMING_PORT)
+                send_video_stream(connection)
         except Exception as e:
             print(e)
-
-        finally:
-            client_socket.close()

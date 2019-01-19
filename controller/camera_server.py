@@ -1,18 +1,17 @@
 import io
 import socket
 import struct
-
 import cv2
 import numpy as np
 
-from settings import PORT
+from settings import STREAMING_PORT
 
 
 def receive_video_stream():
     # Start a socket listening for connections on 0.0.0.0:8000 (0.0.0.0 means
     # all interfaces)
     server_socket = socket.socket()
-    server_socket.bind(('0.0.0.0', PORT))
+    server_socket.bind(('0.0.0.0', STREAMING_PORT))
     server_socket.listen(0)
 
     # Accept a single connection and make a file-like object out of it
@@ -36,6 +35,8 @@ def receive_video_stream():
             k = cv2.waitKey(1)
             if k == ord("q"):
                 break
+            elif k != -1:
+                print(chr(k))
 
             # image = Image.open(image_stream)
             # print('Image is %dx%d' % image.size)

@@ -1,5 +1,5 @@
-PORT = 8888
-IP = '*'
+STREAMING_PORT = 8888
+STREAMING_IP = '*'
 
 try:
     from custom_settings import *
