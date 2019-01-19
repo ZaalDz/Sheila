@@ -2,6 +2,7 @@ import io
 import socket
 import struct
 import time
+from threading import Thread
 
 import picamera
 
@@ -52,7 +53,7 @@ def connect_to_server(client_socket, ip, port):
 
 def main():
     while True:
-        time.sleep(2)
+        time.sleep(5)
         try:
             client_socket = socket.socket()
             print('Trying to start streaming')
@@ -66,4 +67,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    Thread(target=main).start()
