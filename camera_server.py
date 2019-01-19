@@ -6,7 +6,7 @@ from settings import PORT
 import numpy as np
 
 
-def video_streaming():
+def receive_video_stream():
     # Start a socket listening for connections on 0.0.0.0:8000 (0.0.0.0 means
     # all interfaces)
     server_socket = socket.socket()
@@ -29,14 +29,22 @@ def video_streaming():
             # Rewind the stream, open it as an image with PIL and do some
             # processing on it
             image_stream.seek(0)
-            frame = cv2.imdecode(np.fromstring(image_stream.getvalue(), dtype=np.uint8), 1)
+            frame = cv2.imdecode(np.frombuffer(image_stream.getvalue(), dtype=np.uint8), 1)
             cv2.imshow("demo", frame)
+            k = cv2.waitKey(1)
+            if k == ord("q"):
+                break
 
+            # image = Image.open(image_stream)
+            # print('Image is %dx%d' % image.size)
+            # image.verify()
+            # print('Image is verified')
+
+        cv2.destroyAllWindows()
     finally:
         connection.close()
         server_socket.close()
-        cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
-    video_streaming()
+    receive_video_stream()
