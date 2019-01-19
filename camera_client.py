@@ -39,10 +39,11 @@ def send_video_stream(connection):
     finally:
         connection.close()
 
+
 def connect_to_server(client_socket, ip, port):
     # Connect a client socket to my_server:8000 (change my_server to the
     # hostname of your server)
-    client_socket.connect((IP, PORT))
+    client_socket.connect((ip, port))
 
     # Make a file-like object out of the connection
     connection = client_socket.makefile('wb')
@@ -57,6 +58,9 @@ def main():
             print('Trying to start streaming')
             connection = connect_to_server(client_socket, IP, PORT)
             send_video_stream(connection)
+        except Exception as e:
+            print(e)
+
         finally:
             client_socket.close()
 
