@@ -4,7 +4,14 @@ from threading import Thread
 from pynput.keyboard import Listener
 
 from settings import CONTROLLER_PORT
-from util import send_message, receive_message
+from util import send_command_dict, receive_command_dict
+from enums import Directions, CommandKeys
+
+
+direction_mapper = {
+    "'w'": Directions.FORWARD,
+    "'s": Directions.BACKWARD
+}
 
 
 def accepting_connection(my_socket: socket.socket) -> socket.socket:
@@ -15,18 +22,22 @@ def accepting_connection(my_socket: socket.socket) -> socket.socket:
 
 
 def send_commands():
-    user_input = ''
+    user_command = {
+        CommandKeys.DIRECTION: None,
+        CommandKeys.DURATION: 0.5,
+        CommandKeys.SPEED: 50
+    }
 
     def on_press(key):
-        nonlocal user_input
+        nonlocal user_command
 
-        user_input = f'{key}'
+        user_command[CommandKeys.DIRECTION] = direction_mapper.get(str(key))
         print(f'{key} pressed')
 
     def on_release(key):
-        nonlocal user_input
+        nonlocal user_command
         print(f'{key} release')
-        user_input = ''
+        user_command = ''
 
     def run_listener():
         # Collect events until released
@@ -41,9 +52,7 @@ def send_commands():
         connection = accepting_connection(my_socket)
         with connection as conn:
             while True:
-                if user_input:
-                    send_message(conn, user_input)
-                    response = receive_message(conn)
+                if user_command:
+                    send_command_dict(conn, user_command)
+                    response = receive_command_dict(conn)
                     print(f'response from car: {response}')
-
-

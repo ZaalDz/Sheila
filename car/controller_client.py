@@ -1,28 +1,23 @@
 import socket
 import time
 
-from car.car import Car, Directions
+from car.car import Car
 from settings import CONTROLLER_PORT, IP
-from util import send_message, receive_message
+from util import send_command_dict, receive_command_dict
+from enums import CommandKeys
 
 car = Car(pwm_frequency=150)
-
-movement_dict = {
-    "'w'": Directions.FORWARD,
-    "'s'": Directions.BACKWARD,
-}
 
 
 def start_controlling_car(conn):
     while True:
-        recv = receive_message(conn)
-        print(f"receive information: {recv}")
-        move_direction = movement_dict.get(recv)
-        print(f"move direction: {move_direction}")
-        if move_direction:
-            car.move(move_direction, 0.5, 50)
+        recv = receive_command_dict(conn)
+        if recv[CommandKeys.DIRECTION]:
+            direction, speed, duration = recv[CommandKeys.DIRECTION], recv[CommandKeys.SPEED], recv[
+                CommandKeys.DURATION]
+            car.move(direction, duration, speed)
 
-        send_message(conn, recv)
+        send_command_dict(conn, recv)
         if not recv:
             print('Connection broke')
             break

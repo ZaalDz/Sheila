@@ -3,12 +3,7 @@ import time
 
 import RPi.GPIO as GPIO
 
-
-class Directions:
-    FORWARD = 1
-    BACKWARD = 2
-    LEFT = 3
-    RIGHT = 4
+from enums import Directions
 
 
 class Car:
