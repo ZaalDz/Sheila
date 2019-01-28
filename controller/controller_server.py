@@ -9,8 +9,8 @@ from enums import Directions, CommandKeys
 
 
 direction_mapper = {
-    "'w'": Directions.FORWARD,
-    "'s": Directions.BACKWARD
+    'w': Directions.FORWARD,
+    's': Directions.BACKWARD
 }
 
 
@@ -37,7 +37,7 @@ def send_commands():
     def on_release(key):
         nonlocal user_command
         print(f'{key} release')
-        user_command = ''
+        user_command[CommandKeys.DIRECTION] = None
 
     def run_listener():
         # Collect events until released
