@@ -9,8 +9,8 @@ from enums import Directions, CommandKeys
 
 
 direction_mapper = {
-    'w': Directions.FORWARD,
-    's': Directions.BACKWARD
+    "'w'": Directions.FORWARD,
+    "'s'": Directions.BACKWARD
 }
 
 
@@ -52,7 +52,7 @@ def send_commands():
         connection = accepting_connection(my_socket)
         with connection as conn:
             while True:
-                if user_command:
+                if user_command[CommandKeys.DIRECTION]:
                     send_command_dict(conn, user_command)
                     response = receive_command_dict(conn)
                     print(f'response from car: {response}')
