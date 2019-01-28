@@ -8,15 +8,17 @@ from util import send_message, receive_message
 car = Car(pwm_frequency=150)
 
 movement_dict = {
-    'w': Directions.FORWARD,
-    's': Directions.BACKWARD,
+    "'w'": Directions.FORWARD,
+    "'s'": Directions.BACKWARD,
 }
 
 
 def start_controlling_car(conn):
     while True:
         recv = receive_message(conn)
+        print(f"receive information: {recv}")
         move_direction = movement_dict.get(recv)
+        print(f"move direction: {move_direction}")
         if move_direction:
             car.move(move_direction, 0.5, 50)
 
@@ -28,6 +30,7 @@ def start_controlling_car(conn):
 
 def connect_to_server(my_socket: socket.socket):
     try:
+        print('Trying to connect to controller')
         my_socket.connect((IP, CONTROLLER_PORT))
         print('Connection established')
         return True
