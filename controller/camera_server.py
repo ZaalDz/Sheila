@@ -38,11 +38,6 @@ def receive_video_stream():
             elif k != -1:
                 print(chr(k))
 
-            # image = Image.open(image_stream)
-            # print('Image is %dx%d' % image.size)
-            # image.verify()
-            # print('Image is verified')
-
         cv2.destroyAllWindows()
     finally:
         connection.close()
