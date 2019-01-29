@@ -2,8 +2,8 @@ import datetime
 import time
 
 import RPi.GPIO as GPIO
-
-from enums import Directions
+from enums import MovementType
+from settings import MIN_LEFT_TURN, MAX_RIGHT_TURN, MAX_CAMERA_POSITION, MIN_CAMERA_POSITION
 
 
 class Car:
@@ -50,14 +50,9 @@ class Car:
 
         self.rc_state = rc_state if rc_state else {}
 
-    def move(self, direction, duration, speed):
-        """
-        direction <string> "forward" / "backward"
-        duration <float> in seconds
-        speed <int> in % 
-        """
+    def move(self, speed, direction, duration):
 
-        if direction == Directions.FORWARD:
+        if direction == MovementType.FORWARD:
             # switch off BW
             self.__BK.ChangeDutyCycle(0)
             # switch on FW
@@ -65,7 +60,7 @@ class Car:
             time.sleep(duration)
             # stop motorb
             self.__FR.ChangeDutyCycle(0)
-        elif direction == Directions.BACKWARD:
+        elif direction == MovementType.BACKWARD:
             # switch off FW
             self.__FR.ChangeDutyCycle(0)
             # switch on BW
@@ -76,27 +71,24 @@ class Car:
 
         return self.rc_state
 
-    def turn_lr(self, degree):
-        """
-        degree <int> between 5 and 10
-        Returns degree if ok.
-        Returns -1, if error
-        """
-        if 5 <= degree <= 9:
+    def turn_lr(self, degree, duration):
+
+        if MIN_LEFT_TURN <= degree <= MAX_RIGHT_TURN:
             self.__LR.ChangeDutyCycle(degree)
-            time.sleep(0.5)
+            time.sleep(duration)
             self.__LR.ChangeDutyCycle(0)
             self.rc_state['turn_degree'] = degree
             return degree
         else:
             return -1
 
-    def camera_position(self, position):
-        if 9 <= position <= 12:
-            self.__CAM.ChangeDutyCycle(position)
-            time.sleep(0.5)
+    def camera_position(self, degree, duration):
+
+        if MIN_CAMERA_POSITION <= degree <= MAX_CAMERA_POSITION:
+            self.__CAM.ChangeDutyCycle(degree)
+            time.sleep(duration)
             self.__CAM.ChangeDutyCycle(0)
-            self.rc_state['camera_position'] = position
+            self.rc_state['camera_position'] = degree
             return self.rc_state
         else:
             return -1

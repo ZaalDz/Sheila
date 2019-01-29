@@ -9,14 +9,21 @@ class BaseEnum(str, Enum):
         return self.value
 
 
-class Directions(BaseEnum):
-    FORWARD = 1
-    BACKWARD = 2
-    LEFT = 3
-    RIGHT = 4
+class MovementType(BaseEnum):
+    FORWARD = 'forward'
+    BACKWARD = 'backward'
+    LEFT = 'left'
+    RIGHT = 'right'
+
+    CAMERA_UP = 'camera_up'
+    CAMERA_DOWN = 'camera_down'
 
 
 class CommandKeys(BaseEnum):
-    DIRECTION = 10
-    SPEED = 11
-    DURATION = 12
+
+    COMMAND_EXIST = 'command_exist'
+    MOVEMENT_TYPE = 'movement_type'
+    SPEED = 'speed'
+    DURATION = 'duration'
+    CAMERA_ROTATION_DEGREE = 'camera_rotation_degree'
+    CAR_ROTATION_DEGREE = 'car_rotation_degree'

@@ -4,23 +4,35 @@ import time
 from car.car import Car
 from settings import CONTROLLER_PORT, IP
 from util import send_command_dict, receive_command_dict
-from enums import CommandKeys
+from enums import CommandKeys, MovementType
 
 car = Car(pwm_frequency=150)
 
 
 def start_controlling_car(conn):
     while True:
-        recv = receive_command_dict(conn)
-        if recv[CommandKeys.DIRECTION]:
-            direction, speed, duration = recv[CommandKeys.DIRECTION], recv[CommandKeys.SPEED], recv[
-                CommandKeys.DURATION]
-            car.move(direction, duration, speed)
+        recv_command = receive_command_dict(conn)
 
-        send_command_dict(conn, recv)
-        if not recv:
+        if not recv_command:
             print('Connection broke')
             break
+
+        movement_type = recv_command[CommandKeys.MOVEMENT_TYPE]
+        duration = recv_command[CommandKeys.DURATION]
+
+        if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
+            speed = recv_command[CommandKeys.SPEED]
+            car.move(speed=speed, direction=movement_type, duration=duration)
+
+        elif movement_type in {MovementType.LEFT, MovementType.RIGHT}:
+            degree = recv_command[CommandKeys.CAR_ROTATION_DEGREE]
+            car.turn_lr(degree=degree, duration=duration)
+
+        elif movement_type in {MovementType.CAMERA_UP, MovementType.CAMERA_DOWN}:
+            degree = recv_command[CommandKeys.CAMERA_ROTATION_DEGREE]
+            car.camera_position(degree, duration=duration)
+
+        send_command_dict(conn, recv_command)
 
 
 def connect_to_server(my_socket: socket.socket):
