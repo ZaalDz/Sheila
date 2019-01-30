@@ -47,7 +47,7 @@ class Car:
         self.__CAM.start(0)
 
         self.turn_lr(7, 0.5)
-        self.camera_position(9, 0.5)
+        self.camera_position(12, 0.5)
 
         self.__FR.start(0)
         self.__BK.start(0)
