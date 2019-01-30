@@ -11,6 +11,7 @@ class Car:
     def __init__(self, pwm_frequency=5000, rc_state=None):
 
         self.__testName = str(datetime.datetime.now()).replace(' ', '_')
+        self.rc_state = rc_state if rc_state else {}
         self.__FW_MOVE_PIN = 40
         self.__BW_MOVE_PIN = 38
         self.__LR_MOVE_PIN = 36
@@ -51,7 +52,6 @@ class Car:
         self.__FR.start(0)
         self.__BK.start(0)
 
-        self.rc_state = rc_state if rc_state else {}
 
     def move(self, speed, direction, duration):
 
