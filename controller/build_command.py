@@ -19,8 +19,8 @@ user_command = {
     CommandKeys.MOVEMENT_TYPE: None,
     CommandKeys.DURATION: 0.5,
     CommandKeys.SPEED: 50,
-    CommandKeys.CAMERA_ROTATION_DEGREE: 7,
-    CommandKeys.CAR_ROTATION_DEGREE: 10
+    CommandKeys.CAMERA_ROTATION_DEGREE: 9,
+    CommandKeys.CAR_ROTATION_DEGREE: 7
 }
 
 

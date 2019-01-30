@@ -8,6 +8,9 @@ MAX_RIGHT_TURN = 9
 MIN_CAMERA_POSITION = 9
 MAX_CAMERA_POSITION = 12
 
+
+VIDEO_SIZE = '1280x800'
+
 try:
     from custom_settings import *
 except:

@@ -1,42 +1,29 @@
-import io
-import socket
-import struct
 import cv2
-import numpy as np
+from settings import STREAMING_PORT, IP
 
-from settings import STREAMING_PORT
+
+def catch_open_stream():
+    while True:
+        cap = cv2.VideoCapture(f'udp://{STREAMING_PORT}:{IP}', cv2.CAP_FFMPEG)
+        if cap.isOpened():
+            return cap
+        print("Trying to connect video streaming")
 
 
 def receive_video_stream():
-    # Start a socket listening for connections on 0.0.0.0:8000 (0.0.0.0 means
-    # all interfaces)
-    server_socket = socket.socket()
-    server_socket.bind(('0.0.0.0', STREAMING_PORT))
-    server_socket.listen(0)
+    cap = catch_open_stream()
 
-    # Accept a single connection and make a file-like object out of it
-    connection = server_socket.accept()[0].makefile('rb')
-    try:
-        while True:
-            # Read the length of the image as a 32-bit unsigned int. If the
-            # length is zero, quit the loop
-            image_len = struct.unpack('<L', connection.read(struct.calcsize('<L')))[0]
-            if not image_len:
-                break
-            # Construct a stream to hold the image data and read the image
-            # data from the connection
-            image_stream = io.BytesIO()
-            image_stream.write(connection.read(image_len))
-            # Rewind the stream, open it as an image with PIL and do some
-            # processing on it
-            image_stream.seek(0)
-            frame = cv2.imdecode(np.frombuffer(image_stream.getvalue(), dtype=np.uint8), 1)
-            cv2.imshow("demo", frame)
-            k = cv2.waitKey(1)
-            if k == ord("b"):
-                break
+    while True:
+        ret, frame = cap.read()
 
-        cv2.destroyAllWindows()
-    finally:
-        connection.close()
-        server_socket.close()
+        if not ret:
+            print('frame empty')
+            continue
+
+        cv2.imshow('image', frame)
+
+        if cv2.waitKey(1) & 0XFF == ord('p'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()

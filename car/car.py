@@ -52,7 +52,6 @@ class Car:
         self.__FR.start(0)
         self.__BK.start(0)
 
-
     def move(self, speed, direction, duration):
 
         if direction == MovementType.FORWARD:
