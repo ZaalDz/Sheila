@@ -33,10 +33,8 @@ def receive_video_stream():
             frame = cv2.imdecode(np.frombuffer(image_stream.getvalue(), dtype=np.uint8), 1)
             cv2.imshow("demo", frame)
             k = cv2.waitKey(1)
-            if k == ord("q"):
+            if k == ord("b"):
                 break
-            elif k != -1:
-                print(chr(k))
 
         cv2.destroyAllWindows()
     finally:

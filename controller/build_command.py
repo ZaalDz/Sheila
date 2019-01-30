@@ -72,7 +72,6 @@ class CommandBuilder:
     def on_release(key):
         with CommandBuilder.lock:
             global user_command
-            print(f'{key} release')
             user_command[CommandKeys.COMMAND_EXIST] = False
 
 
