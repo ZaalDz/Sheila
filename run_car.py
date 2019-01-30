@@ -4,4 +4,4 @@ from threading import Thread
 
 if __name__ == '__main__':
     Thread(target=receive_commands).start()
-    start_video_streaming()
+    Thread(target=start_video_streaming).start()
