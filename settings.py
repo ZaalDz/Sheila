@@ -12,7 +12,7 @@ STARTING_CAMERA_POSITION = 9
 STARTING_ROTATION_POSITION = 7
 
 
-VIDEO_SIZE = '1280x800'
+VIDEO_SIZE = '480x320'
 
 try:
     from custom_settings import *
