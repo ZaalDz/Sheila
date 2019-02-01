@@ -3,7 +3,8 @@ import time
 
 import RPi.GPIO as GPIO
 from enums import MovementType
-from settings import MIN_LEFT_TURN, MAX_RIGHT_TURN, MAX_CAMERA_POSITION, MIN_CAMERA_POSITION
+from settings import MIN_LEFT_TURN, MAX_RIGHT_TURN, MAX_CAMERA_POSITION, MIN_CAMERA_POSITION, \
+    STARTING_ROTATION_POSITION, STARTING_CAMERA_POSITION
 
 
 class Car:
@@ -46,8 +47,8 @@ class Car:
         self.__LR.start(0)
         self.__CAM.start(0)
 
-        self.turn_lr(7, 0.5)
-        self.camera_position(12, 0.5)
+        self.turn_lr(STARTING_ROTATION_POSITION, 0.5)
+        self.camera_position(STARTING_CAMERA_POSITION, 0.5)
 
         self.__FR.start(0)
         self.__BK.start(0)

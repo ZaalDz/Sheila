@@ -4,7 +4,7 @@ from pynput.keyboard import Listener
 
 from enums import MovementType, CommandKeys
 from settings import MIN_CAMERA_POSITION, MIN_LEFT_TURN, MAX_CAMERA_POSITION, MAX_RIGHT_TURN, \
-    STARTING_CAMERA_POSITION, STARTING_ROTATION_POSITION
+    STARTING_CAMERA_POSITION, STARTING_ROTATION_POSITION, MOVE_DURATION, ROTATE_DURATION, CAR_SPEED
 
 command_list = SynchronizedList()
 
@@ -19,9 +19,9 @@ movement_mapper = {
 
 user_command = {
     CommandKeys.MOVEMENT_TYPE: None,
-    CommandKeys.MOVE_DURATION: 0.1,
-    CommandKeys.ROTATE_DURATION: 0.5,
-    CommandKeys.SPEED: 50,
+    CommandKeys.MOVE_DURATION: MOVE_DURATION,
+    CommandKeys.ROTATE_DURATION: ROTATE_DURATION,
+    CommandKeys.SPEED: CAR_SPEED,
     CommandKeys.CAMERA_ROTATION_DEGREE: STARTING_CAMERA_POSITION,
     CommandKeys.CAR_ROTATION_DEGREE: STARTING_ROTATION_POSITION
 }
