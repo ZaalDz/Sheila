@@ -1,9 +1,12 @@
 from threading import Thread, Lock
-
+from queue import Queue
 from pynput.keyboard import Listener
 
 from enums import MovementType, CommandKeys
-from settings import MIN_CAMERA_POSITION, MIN_LEFT_TURN, MAX_CAMERA_POSITION, MAX_RIGHT_TURN
+from settings import MIN_CAMERA_POSITION, MIN_LEFT_TURN, MAX_CAMERA_POSITION, MAX_RIGHT_TURN, \
+    STARTING_CAMERA_POSITION, STARTING_ROTATION_POSITION
+
+command_queue = Queue()
 
 movement_mapper = {
     "'w'": MovementType.FORWARD,
@@ -15,13 +18,22 @@ movement_mapper = {
 }
 
 user_command = {
-    CommandKeys.COMMAND_EXIST: False,
     CommandKeys.MOVEMENT_TYPE: None,
     CommandKeys.DURATION: 0.5,
     CommandKeys.SPEED: 50,
-    CommandKeys.CAMERA_ROTATION_DEGREE: 9,
-    CommandKeys.CAR_ROTATION_DEGREE: 7
+    CommandKeys.CAMERA_ROTATION_DEGREE: STARTING_CAMERA_POSITION,
+    CommandKeys.CAR_ROTATION_DEGREE: STARTING_ROTATION_POSITION
 }
+
+
+def set_movement_type(key):
+    global user_command
+
+    movement = movement_mapper.get(str(key))
+
+    if movement:
+        user_command[CommandKeys.MOVEMENT_TYPE] = movement
+        CommandBuilder.build_command()
 
 
 class CommandBuilder:
@@ -29,50 +41,37 @@ class CommandBuilder:
 
     @staticmethod
     def build_command():
-        with CommandBuilder.lock:
-            command_exist = user_command[CommandKeys.COMMAND_EXIST]
-            movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
+        movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
 
-            camera_degree = user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-            car_rotation_degree = user_command[CommandKeys.CAR_ROTATION_DEGREE]
+        camera_degree = user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
+        car_rotation_degree = user_command[CommandKeys.CAR_ROTATION_DEGREE]
 
-            if not command_exist:
-                return {}
+        if movement_type == MovementType.LEFT and car_rotation_degree > MIN_LEFT_TURN:
+            user_command[CommandKeys.CAR_ROTATION_DEGREE] -= 1
 
-            if movement_type == MovementType.LEFT and car_rotation_degree > MIN_LEFT_TURN:
-                user_command[CommandKeys.CAR_ROTATION_DEGREE] -= 1
+        elif movement_type == MovementType.RIGHT and car_rotation_degree < MAX_RIGHT_TURN:
+            user_command[CommandKeys.CAR_ROTATION_DEGREE] += 1
 
-            elif movement_type == MovementType.RIGHT and car_rotation_degree < MAX_RIGHT_TURN:
-                user_command[CommandKeys.CAR_ROTATION_DEGREE] += 1
+        elif movement_type == MovementType.CAMERA_DOWN and camera_degree > MIN_CAMERA_POSITION:
+            user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= 1
 
-            elif movement_type == MovementType.CAMERA_DOWN and camera_degree > MIN_CAMERA_POSITION:
-                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= 1
+        elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
+            user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
 
-            elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
-                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
-
-            return user_command
+        command_queue.put(user_command.copy())
 
     @staticmethod
     def on_press(key):
         with CommandBuilder.lock:
-
-            global user_command
-
-            movement = movement_mapper.get(str(key))
-
-            if movement:
-                user_command[CommandKeys.MOVEMENT_TYPE] = movement
-                user_command[CommandKeys.COMMAND_EXIST] = True
-
-            else:
-                user_command[CommandKeys.COMMAND_EXIST] = False
+            set_movement_type(key)
 
     @staticmethod
     def on_release(key):
         with CommandBuilder.lock:
             global user_command
-            user_command[CommandKeys.COMMAND_EXIST] = False
+            if key in {"'a'", "'d'"}:
+                user_command[CommandKeys.CAR_ROTATION_DEGREE] = STARTING_ROTATION_POSITION
+                set_movement_type(key)
 
 
 def keyboard_listener():
