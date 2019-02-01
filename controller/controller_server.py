@@ -1,6 +1,6 @@
 import socket
 
-from controller.build_command import command_queue
+from controller.build_command import command_list
 from settings import CONTROLLER_PORT
 from util import send_command_dict, receive_command_dict
 from controller.build_command import run_keyboard_listener
@@ -23,8 +23,8 @@ def send_commands():
         connection = accepting_connection(my_socket)
         with connection as conn:
             while True:
-                if not command_queue.empty():
-                    command = command_queue.get()
+                command = command_list.get_command()
+                if command:
                     send_command_dict(conn, command)
                     response = receive_command_dict(conn)
                     print(f'response from car: {response}')

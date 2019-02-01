@@ -18,19 +18,20 @@ def start_controlling_car(conn):
             break
 
         movement_type = recv_command[CommandKeys.MOVEMENT_TYPE]
-        duration = recv_command[CommandKeys.DURATION]
+        move_duration = recv_command[CommandKeys.MOVE_DURATION]
+        rotate_duration = recv_command[CommandKeys.ROTATE_DURATION]
 
         if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
             speed = recv_command[CommandKeys.SPEED]
-            car.move(speed=speed, direction=movement_type, duration=duration)
+            car.move(speed=speed, direction=movement_type, duration=move_duration)
 
         elif movement_type in {MovementType.LEFT, MovementType.RIGHT}:
             degree = recv_command[CommandKeys.CAR_ROTATION_DEGREE]
-            car.turn_lr(degree=degree, duration=duration)
+            car.turn_lr(degree=degree, duration=rotate_duration)
 
         elif movement_type in {MovementType.CAMERA_UP, MovementType.CAMERA_DOWN}:
             degree = recv_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-            car.camera_position(degree, duration=duration)
+            car.camera_position(degree, duration=rotate_duration)
 
         send_command_dict(conn, recv_command)
 

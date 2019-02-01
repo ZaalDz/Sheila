@@ -24,6 +24,7 @@ class CommandKeys(BaseEnum):
     COMMAND_EXIST = 'command_exist'
     MOVEMENT_TYPE = 'movement_type'
     SPEED = 'speed'
-    DURATION = 'duration'
+    MOVE_DURATION = 'duration'
+    ROTATE_DURATION = 'rotate_duration'
     CAMERA_ROTATION_DEGREE = 'camera_rotation_degree'
     CAR_ROTATION_DEGREE = 'car_rotation_degree'

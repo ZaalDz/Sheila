@@ -1,12 +1,12 @@
 from threading import Thread, Lock
-from queue import Queue
+from controller.synchronized_list import SynchronizedList
 from pynput.keyboard import Listener
 
 from enums import MovementType, CommandKeys
 from settings import MIN_CAMERA_POSITION, MIN_LEFT_TURN, MAX_CAMERA_POSITION, MAX_RIGHT_TURN, \
     STARTING_CAMERA_POSITION, STARTING_ROTATION_POSITION
 
-command_queue = Queue()
+command_list = SynchronizedList()
 
 movement_mapper = {
     "'w'": MovementType.FORWARD,
@@ -19,13 +19,12 @@ movement_mapper = {
 
 user_command = {
     CommandKeys.MOVEMENT_TYPE: None,
-    CommandKeys.DURATION: 0.5,
+    CommandKeys.MOVE_DURATION: 0.1,
+    CommandKeys.ROTATE_DURATION: 0.5,
     CommandKeys.SPEED: 50,
     CommandKeys.CAMERA_ROTATION_DEGREE: STARTING_CAMERA_POSITION,
     CommandKeys.CAR_ROTATION_DEGREE: STARTING_ROTATION_POSITION
 }
-
-last_command = {}
 
 
 def set_movement_type(key, change_car_to_default_position=False):
@@ -43,7 +42,6 @@ class CommandBuilder:
 
     @staticmethod
     def build_command(change_car_to_default_position):
-        global last_command
 
         if not change_car_to_default_position:
             movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
@@ -63,10 +61,7 @@ class CommandBuilder:
             elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
                 user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
 
-        if user_command != last_command:
-            command_queue.put(user_command.copy())
-
-        last_command = user_command.copy()
+        command_list.append(user_command)
 
     @staticmethod
     def on_press(key):
