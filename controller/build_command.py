@@ -25,40 +25,48 @@ user_command = {
     CommandKeys.CAR_ROTATION_DEGREE: STARTING_ROTATION_POSITION
 }
 
+last_command = {}
 
-def set_movement_type(key):
+
+def set_movement_type(key, change_car_to_default_position=False):
     global user_command
 
     movement = movement_mapper.get(str(key))
 
     if movement:
         user_command[CommandKeys.MOVEMENT_TYPE] = movement
-        CommandBuilder.build_command()
+        CommandBuilder.build_command(change_car_to_default_position)
 
 
 class CommandBuilder:
     lock = Lock()
 
     @staticmethod
-    def build_command():
-        movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
+    def build_command(change_car_to_default_position):
+        global last_command
 
-        camera_degree = user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-        car_rotation_degree = user_command[CommandKeys.CAR_ROTATION_DEGREE]
+        if not change_car_to_default_position:
+            movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
 
-        if movement_type == MovementType.LEFT and car_rotation_degree > MIN_LEFT_TURN:
-            user_command[CommandKeys.CAR_ROTATION_DEGREE] -= 1
+            camera_degree = user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
+            car_rotation_degree = user_command[CommandKeys.CAR_ROTATION_DEGREE]
 
-        elif movement_type == MovementType.RIGHT and car_rotation_degree < MAX_RIGHT_TURN:
-            user_command[CommandKeys.CAR_ROTATION_DEGREE] += 1
+            if movement_type == MovementType.LEFT and car_rotation_degree > MIN_LEFT_TURN:
+                user_command[CommandKeys.CAR_ROTATION_DEGREE] -= 1
 
-        elif movement_type == MovementType.CAMERA_DOWN and camera_degree > MIN_CAMERA_POSITION:
-            user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= 1
+            elif movement_type == MovementType.RIGHT and car_rotation_degree < MAX_RIGHT_TURN:
+                user_command[CommandKeys.CAR_ROTATION_DEGREE] += 1
 
-        elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
-            user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
+            elif movement_type == MovementType.CAMERA_DOWN and camera_degree > MIN_CAMERA_POSITION:
+                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= 1
 
-        command_queue.put(user_command.copy())
+            elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
+                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
+
+        if user_command != last_command:
+            command_queue.put(user_command.copy())
+
+        last_command = user_command.copy()
 
     @staticmethod
     def on_press(key):
@@ -69,9 +77,10 @@ class CommandBuilder:
     def on_release(key):
         with CommandBuilder.lock:
             global user_command
-            if key in {"'a'", "'d'"}:
+
+            if str(key) in {"'a'", "'d'"}:
                 user_command[CommandKeys.CAR_ROTATION_DEGREE] = STARTING_ROTATION_POSITION
-                set_movement_type(key)
+                set_movement_type(key, change_car_to_default_position=True)
 
 
 def keyboard_listener():
