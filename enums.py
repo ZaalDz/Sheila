@@ -15,13 +15,15 @@ class MovementType(BaseEnum):
     LEFT = 'left'
     RIGHT = 'right'
 
+    DEFAULT_WHEEL_POSITION = 'default_wheel_position'
+    DEFAULT_CAMERA_POSITION = 'default_camera_position'
+
     CAMERA_UP = 'camera_up'
     CAMERA_DOWN = 'camera_down'
 
 
 class CommandKeys(BaseEnum):
 
-    COMMAND_EXIST = 'command_exist'
     MOVEMENT_TYPE = 'movement_type'
     SPEED = 'speed'
     MOVE_DURATION = 'duration'

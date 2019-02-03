@@ -1,12 +1,8 @@
-from threading import Thread, Lock
-from controller.synchronized_list import SynchronizedList
-from pynput.keyboard import Listener
+from threading import Lock
 
 from enums import MovementType, CommandKeys
-from settings import MIN_CAMERA_POSITION, MIN_LEFT_TURN, MAX_CAMERA_POSITION, MAX_RIGHT_TURN, \
-    STARTING_CAMERA_POSITION, STARTING_ROTATION_POSITION, MOVE_DURATION, ROTATE_DURATION, CAR_SPEED
-
-command_list = SynchronizedList()
+from settings import CarSettings
+from controller.singleton import Singleton
 
 movement_mapper = {
     "'w'": MovementType.FORWARD,
@@ -17,72 +13,128 @@ movement_mapper = {
     "'z'": MovementType.CAMERA_DOWN
 }
 
-user_command = {
-    CommandKeys.MOVEMENT_TYPE: None,
-    CommandKeys.MOVE_DURATION: MOVE_DURATION,
-    CommandKeys.ROTATE_DURATION: ROTATE_DURATION,
-    CommandKeys.SPEED: CAR_SPEED,
-    CommandKeys.CAMERA_ROTATION_DEGREE: STARTING_CAMERA_POSITION,
-    CommandKeys.CAR_ROTATION_DEGREE: STARTING_ROTATION_POSITION
-}
+
+class CommandBuilder(metaclass=Singleton):
+
+    def __init__(self):
+        self.lock = Lock()
+
+        self.base_user_command = {
+            CommandKeys.MOVE_DURATION: CarSettings.MOVE_DURATION,
+            CommandKeys.ROTATE_DURATION: CarSettings.ROTATE_DURATION,
+            CommandKeys.SPEED: CarSettings.CAR_SPEED,
+            CommandKeys.CAMERA_ROTATION_DEGREE: CarSettings.STARTING_CAMERA_POSITION,
+            CommandKeys.CAR_ROTATION_DEGREE: CarSettings.STARTING_ROTATION_POSITION
+        }
+
+    def move(self, *, forward=True):
+        """
+        move car forward or backward, default value is forward
+
+        """
+
+        if forward:
+            movement_type = MovementType.FORWARD
+        else:
+            movement_type = MovementType.BACKWARD
+
+        move_command = {
+            CommandKeys.MOVEMENT_TYPE: movement_type,
+            CommandKeys.SPEED: self.base_user_command[CommandKeys.SPEED],
+            CommandKeys.MOVE_DURATION: self.base_user_command[CommandKeys.MOVE_DURATION]
+        }
+
+        return move_command
+
+    def rotate_wheel(self, *, left=False, right=False):
+        """
+        move wheel left, right or starting state, default value is starting state
+
+        """
+
+        car_rotation_degree = self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE]
+
+        if left:
+
+            if car_rotation_degree > CarSettings.MIN_LEFT_TURN:
+                self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] -= CarSettings.WHEEL_ROTATE_SPEED
+
+            movement_type = MovementType.LEFT
+
+        elif right:
+            if car_rotation_degree < CarSettings.MAX_RIGHT_TURN:
+                self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] += CarSettings.WHEEL_ROTATE_SPEED
+
+            movement_type = MovementType.RIGHT
+        else:
+            self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] = CarSettings.STARTING_ROTATION_POSITION
+            movement_type = MovementType.DEFAULT_WHEEL_POSITION
+
+        rotate_command = {
+            CommandKeys.MOVEMENT_TYPE: movement_type,
+            CommandKeys.CAR_ROTATION_DEGREE: self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE],
+            CommandKeys.ROTATE_DURATION: self.base_user_command[CommandKeys.ROTATE_DURATION]
+        }
+
+        return rotate_command
+
+    def rotate_camera(self, *, down=False, up=False):
+        """
+        move camera up or down, default value is up
+
+        """
+
+        camera_rotation_degree = self.base_user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
+
+        if up:
+            if camera_rotation_degree < CarSettings.MAX_CAMERA_POSITION:
+                self.base_user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += CarSettings.CAMERA_ROTATE_SPEED
+            movement_type = MovementType.CAMERA_UP
+        elif down:
+            if camera_rotation_degree > CarSettings.MIN_CAMERA_POSITION:
+                self.base_user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= CarSettings.CAMERA_ROTATE_SPEED
+
+            movement_type = MovementType.CAMERA_DOWN
+        else:
+            self.base_user_command[CommandKeys.CAMERA_ROTATION_DEGREE] = CarSettings.STARTING_CAMERA_POSITION
+
+            movement_type = MovementType.DEFAULT_CAMERA_POSITION
+
+        camera_command = {
+            CommandKeys.MOVEMENT_TYPE: movement_type,
+            CommandKeys.CAMERA_ROTATION_DEGREE: self.base_user_command[CommandKeys.CAMERA_ROTATION_DEGREE],
+            CommandKeys.ROTATE_DURATION: self.base_user_command[CommandKeys.ROTATE_DURATION]
+        }
+
+        return camera_command
+
+    def build_commands(self, event_keys, *, set_wheel_default_position=False):
+
+        if set_wheel_default_position:
+            return [self.rotate_wheel()]
+
+        command_list = []
+
+        for each_event_key in event_keys:
+            movement_type = movement_mapper.get(each_event_key)
+
+            if movement_type == MovementType.LEFT:
+                command = self.rotate_wheel(left=True)
+
+            elif movement_type == MovementType.RIGHT:
+                command = self.rotate_wheel(right=True)
+
+            elif movement_type == MovementType.CAMERA_DOWN:
+                command = self.rotate_camera(down=True)
+
+            elif movement_type == MovementType.CAMERA_UP:
+                command = self.rotate_camera(up=True)
+            elif movement_type == MovementType.FORWARD:
+                command = self.move()
+            else:
+                command = self.move(forward=False)
+
+            command_list.append(command)
+        return command_list
 
 
-def set_movement_type(key, change_car_to_default_position=False):
-    global user_command
-
-    movement = movement_mapper.get(str(key))
-
-    if movement:
-        user_command[CommandKeys.MOVEMENT_TYPE] = movement
-        CommandBuilder.build_command(change_car_to_default_position)
-
-
-class CommandBuilder:
-    lock = Lock()
-
-    @staticmethod
-    def build_command(change_car_to_default_position):
-
-        if not change_car_to_default_position:
-            movement_type = user_command[CommandKeys.MOVEMENT_TYPE]
-
-            camera_degree = user_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-            car_rotation_degree = user_command[CommandKeys.CAR_ROTATION_DEGREE]
-
-            if movement_type == MovementType.LEFT and car_rotation_degree > MIN_LEFT_TURN:
-                user_command[CommandKeys.CAR_ROTATION_DEGREE] -= 1
-
-            elif movement_type == MovementType.RIGHT and car_rotation_degree < MAX_RIGHT_TURN:
-                user_command[CommandKeys.CAR_ROTATION_DEGREE] += 1
-
-            elif movement_type == MovementType.CAMERA_DOWN and camera_degree > MIN_CAMERA_POSITION:
-                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] -= 1
-
-            elif movement_type == MovementType.CAMERA_UP and camera_degree < MAX_CAMERA_POSITION:
-                user_command[CommandKeys.CAMERA_ROTATION_DEGREE] += 1
-
-        command_list.append(user_command)
-
-    @staticmethod
-    def on_press(key):
-        with CommandBuilder.lock:
-            set_movement_type(key)
-
-    @staticmethod
-    def on_release(key):
-        with CommandBuilder.lock:
-            global user_command
-
-            if str(key) in {"'a'", "'d'"}:
-                user_command[CommandKeys.CAR_ROTATION_DEGREE] = STARTING_ROTATION_POSITION
-                set_movement_type(key, change_car_to_default_position=True)
-
-
-def keyboard_listener():
-    # Collect events until released
-    with Listener(on_press=CommandBuilder.on_press, on_release=CommandBuilder.on_release) as listener:
-        listener.join()
-
-
-def run_keyboard_listener():
-    Thread(target=keyboard_listener).start()

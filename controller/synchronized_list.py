@@ -1,22 +1,19 @@
 from threading import Lock
+from controller.singleton import Singleton
 
 
-class SynchronizedList(list):
+class SynchronizedList(list, metaclass=Singleton):
 
     def __init__(self):
         super().__init__()
         self.lock = Lock()
 
-    def append(self, command_dict):
-        """
-        adding copy command in list, function doesn't add duplicate command
-        Args:
-            command_dict: command dictionary
-
-        """
+    def add_command(self, command_list):
         with self.lock:
-            if not self or self[-1] != command_dict:
-                super().append(command_dict.copy())
+
+            # don't add command if it already added in list
+            if not self or self[-1] != command_list:
+                super().append(command_list)
 
     def get_command(self):
         """

@@ -3,8 +3,7 @@ import time
 
 import RPi.GPIO as GPIO
 from enums import MovementType
-from settings import MIN_LEFT_TURN, MAX_RIGHT_TURN, MAX_CAMERA_POSITION, MIN_CAMERA_POSITION, \
-    STARTING_ROTATION_POSITION, STARTING_CAMERA_POSITION
+from settings import CarSettings
 
 
 class Car:
@@ -47,8 +46,8 @@ class Car:
         self.__LR.start(0)
         self.__CAM.start(0)
 
-        self.turn_lr(STARTING_ROTATION_POSITION, 0.5)
-        self.camera_position(STARTING_CAMERA_POSITION, 0.5)
+        self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5)
+        self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5)
 
         self.__FR.start(0)
         self.__BK.start(0)
@@ -76,7 +75,7 @@ class Car:
 
     def turn_lr(self, degree, duration):
 
-        if MIN_LEFT_TURN <= degree <= MAX_RIGHT_TURN:
+        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
             self.__LR.ChangeDutyCycle(degree)
             time.sleep(duration)
             self.__LR.ChangeDutyCycle(0)
@@ -87,7 +86,7 @@ class Car:
 
     def camera_position(self, degree, duration):
 
-        if MIN_CAMERA_POSITION <= degree <= MAX_CAMERA_POSITION:
+        if CarSettings.MIN_CAMERA_POSITION <= degree <= CarSettings.MAX_CAMERA_POSITION:
             self.__CAM.ChangeDutyCycle(degree)
             time.sleep(duration)
             self.__CAM.ChangeDutyCycle(0)

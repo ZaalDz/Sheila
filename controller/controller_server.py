@@ -1,9 +1,9 @@
 import socket
 
-from controller.build_command import command_list
 from settings import CONTROLLER_PORT
 from util import send_command_dict, receive_command_dict
-from controller.build_command import run_keyboard_listener
+from controller.keyboard_listener import run_keyboard_listener
+from controller.keyboard_listener import commands_list
 
 
 def accepting_connection(my_socket: socket.socket) -> socket.socket:
@@ -23,7 +23,7 @@ def send_commands():
         connection = accepting_connection(my_socket)
         with connection as conn:
             while True:
-                command = command_list.get_command()
+                command = commands_list.get_command()
                 if command:
                     send_command_dict(conn, command)
                     response = receive_command_dict(conn)

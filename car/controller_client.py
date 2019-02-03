@@ -2,38 +2,44 @@ import socket
 import time
 
 from car.car import Car
+from enums import CommandKeys, MovementType
 from settings import CONTROLLER_PORT, IP
 from util import send_command_dict, receive_command_dict
-from enums import CommandKeys, MovementType
 
 car = Car(pwm_frequency=150)
 
 
 def start_controlling_car(conn):
-    while True:
-        recv_command = receive_command_dict(conn)
 
-        if not recv_command:
+    while True:
+        recv_command_list = receive_command_dict(conn)
+
+        if not recv_command_list:
             print('Connection broke')
             break
 
-        movement_type = recv_command[CommandKeys.MOVEMENT_TYPE]
-        move_duration = recv_command[CommandKeys.MOVE_DURATION]
-        rotate_duration = recv_command[CommandKeys.ROTATE_DURATION]
+        for each_command in recv_command_list:
 
-        if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
-            speed = recv_command[CommandKeys.SPEED]
-            car.move(speed=speed, direction=movement_type, duration=move_duration)
+            movement_type = each_command[CommandKeys.MOVEMENT_TYPE]
 
-        elif movement_type in {MovementType.LEFT, MovementType.RIGHT}:
-            degree = recv_command[CommandKeys.CAR_ROTATION_DEGREE]
-            car.turn_lr(degree=degree, duration=rotate_duration)
+            if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
+                speed = each_command[CommandKeys.SPEED]
+                move_duration = each_command[CommandKeys.MOVE_DURATION]
+                car.move(speed=speed, direction=movement_type, duration=move_duration)
 
-        elif movement_type in {MovementType.CAMERA_UP, MovementType.CAMERA_DOWN}:
-            degree = recv_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-            car.camera_position(degree, duration=rotate_duration)
+            elif movement_type in {MovementType.LEFT, MovementType.RIGHT, MovementType.DEFAULT_WHEEL_POSITION}:
+                degree = each_command[CommandKeys.CAR_ROTATION_DEGREE]
+                rotate_duration = each_command[CommandKeys.ROTATE_DURATION]
+                car.turn_lr(degree=degree, duration=rotate_duration)
 
-        send_command_dict(conn, recv_command)
+            elif movement_type in {MovementType.CAMERA_UP, MovementType.CAMERA_DOWN,
+                                   MovementType.DEFAULT_CAMERA_POSITION}:
+
+                degree = each_command[CommandKeys.CAMERA_ROTATION_DEGREE]
+                rotate_duration = each_command[CommandKeys.ROTATE_DURATION]
+                car.camera_position(degree, duration=rotate_duration)
+
+        send_command_dict(conn, recv_command_list)
 
 
 def connect_to_server(my_socket: socket.socket):
