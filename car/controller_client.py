@@ -10,7 +10,7 @@ from util import send_command_dict, receive_command_dict
 car = Car(pwm_frequency=150)
 
 
-def create_async_tasks(recv_command_list):
+async def create_async_tasks(recv_command_list):
     async_tasks = []
 
     for each_command in recv_command_list:
