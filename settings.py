@@ -21,7 +21,7 @@ class CarSettings:
     CAMERA_ROTATE_SPEED = 1
 
 
-VIDEO_SIZE = '480x320'
+VIDEO_SIZE = '720x480'
 
 try:
     from custom_settings import *

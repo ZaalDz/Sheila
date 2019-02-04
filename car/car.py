@@ -1,6 +1,6 @@
 import datetime
 import time
-
+import asyncio
 import RPi.GPIO as GPIO
 from enums import MovementType
 from settings import CarSettings
@@ -52,7 +52,7 @@ class Car:
         self.__FR.start(0)
         self.__BK.start(0)
 
-    def move(self, speed, direction, duration):
+    async def move(self, speed, direction, duration):
 
         if direction == MovementType.FORWARD:
             # switch off BW
@@ -73,27 +73,25 @@ class Car:
 
         return self.rc_state
 
-    def turn_lr(self, degree, duration):
+    async def turn_lr(self, degree, duration):
 
         if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
             self.__LR.ChangeDutyCycle(degree)
             time.sleep(duration)
             self.__LR.ChangeDutyCycle(0)
             self.rc_state['turn_degree'] = degree
-            return degree
-        else:
-            return -1
 
-    def camera_position(self, degree, duration):
+        return self.rc_state
+
+    async def camera_position(self, degree, duration):
 
         if CarSettings.MIN_CAMERA_POSITION <= degree <= CarSettings.MAX_CAMERA_POSITION:
             self.__CAM.ChangeDutyCycle(degree)
             time.sleep(duration)
             self.__CAM.ChangeDutyCycle(0)
             self.rc_state['camera_position'] = degree
-            return self.rc_state
-        else:
-            return -1
+
+        return self.rc_state
 
     def __del__(self):
         GPIO.cleanup()
