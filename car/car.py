@@ -46,8 +46,8 @@ class Car:
         self.__LR.start(0)
         self.__CAM.start(0)
 
-        self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5)
-        self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5)
+        asyncio.run(self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5))
+        asyncio.run(self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5))
 
         self.__FR.start(0)
         self.__BK.start(0)
@@ -59,7 +59,7 @@ class Car:
             self.__BK.ChangeDutyCycle(0)
             # switch on FW
             self.__FR.ChangeDutyCycle(speed)
-            time.sleep(duration)
+            await asyncio.sleep(duration)
             # stop motorb
             self.__FR.ChangeDutyCycle(0)
         elif direction == MovementType.BACKWARD:
@@ -67,7 +67,7 @@ class Car:
             self.__FR.ChangeDutyCycle(0)
             # switch on BW
             self.__BK.ChangeDutyCycle(speed)
-            time.sleep(duration)
+            await asyncio.sleep(duration)
             # stop motorb
             self.__BK.ChangeDutyCycle(0)
 
@@ -77,7 +77,7 @@ class Car:
 
         if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
             self.__LR.ChangeDutyCycle(degree)
-            time.sleep(duration)
+            await asyncio.sleep(duration)
             self.__LR.ChangeDutyCycle(0)
             self.rc_state['turn_degree'] = degree
 
@@ -87,7 +87,7 @@ class Car:
 
         if CarSettings.MIN_CAMERA_POSITION <= degree <= CarSettings.MAX_CAMERA_POSITION:
             self.__CAM.ChangeDutyCycle(degree)
-            time.sleep(duration)
+            await asyncio.sleep(duration)
             self.__CAM.ChangeDutyCycle(0)
             self.rc_state['camera_position'] = degree
 

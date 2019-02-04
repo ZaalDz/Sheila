@@ -36,7 +36,7 @@ async def create_async_tasks(recv_command_list):
         # TODO: else?
         async_tasks.append(task)
 
-    return await asyncio.gather(async_tasks)
+    return await asyncio.gather(*async_tasks)
 
 
 def start_controlling_car(conn):
