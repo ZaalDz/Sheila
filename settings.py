@@ -11,11 +11,11 @@ class CarSettings:
     MAX_CAMERA_POSITION = 12
 
     STARTING_CAMERA_POSITION = 12
-    STARTING_ROTATION_POSITION = 7
+    STARTING_ROTATION_POSITION = 8
 
     CAR_SPEED = 50
-    MOVE_DURATION = 0.1
-    ROTATE_DURATION = 0.3
+    MOVE_DURATION = 0.4
+    ROTATE_DURATION = 0.4
 
     WHEEL_ROTATE_SPEED = 1
     CAMERA_ROTATE_SPEED = 1
@@ -29,5 +29,5 @@ except:
     pass
 
 '''
-sudo modprobe bcm2835-v4l2
+sudo modprobe bcm2835-v4l2d
 '''
