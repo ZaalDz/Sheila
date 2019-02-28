@@ -6,4 +6,4 @@ from threading import Thread
 if __name__ == '__main__':
     Thread(target=receive_video_stream).start()
     Thread(target=run_keyboard_listener).start()
-    Thread(target=send_commands).start()
+    send_commands()
