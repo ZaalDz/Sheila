@@ -1,11 +1,13 @@
-import socket
-import time
 import asyncio
+
+from twisted.internet import reactor
+from twisted.internet.protocol import ReconnectingClientFactory
+from twisted.protocols.basic import LineReceiver
 
 from car.car import Car
 from enums import CommandKeys, MovementType
 from settings import CONTROLLER_PORT, IP
-from util import send_command_dict, receive_command_dict
+from util import encode_command, decode_command
 
 car = Car(pwm_frequency=150)
 
@@ -39,32 +41,39 @@ async def create_async_tasks(recv_command_list):
     return await asyncio.gather(*async_tasks)
 
 
-def start_controlling_car(conn):
-    while True:
-        recv_command_list = receive_command_dict(conn)
+class CommandReceiver(LineReceiver):
+    def rawDataReceived(self, data):
+        pass
 
-        if not recv_command_list:
-            print('Connection broke')
-            break
-        response = asyncio.run(create_async_tasks(recv_command_list))
-        send_command_dict(conn, response)
+    def lineReceived(self, line):
+        recv_command: list = decode_command(line)
+        response = asyncio.run(create_async_tasks(recv_command))
+        feedback = encode_command(response)
+        self.sendLine(feedback)
 
 
-def connect_to_server(my_socket: socket.socket):
-    try:
-        print('Trying to connect to controller')
-        my_socket.connect((IP, CONTROLLER_PORT))
-        print('Connection established')
-        return True
-    except socket.error as e:
-        print(e)
-        time.sleep(3)
-        return False
+class CommandClientFactory(ReconnectingClientFactory):
+    protocol = CommandReceiver
+
+    def startedConnecting(self, connector):
+        print('Started to connect.')
+
+    def buildProtocol(self, addr):
+        print('Connected.')
+        self.resetDelay()
+        return CommandReceiver()
+
+    def clientConnectionLost(self, connector, reason):
+        print('Lost connection.  Reason:', reason)
+        ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
+
+    def clientConnectionFailed(self, connector, reason):
+        print('Connection failed. Reason:', reason)
+        ReconnectingClientFactory.clientConnectionFailed(self, connector,
+                                                         reason)
 
 
 def receive_commands():
-    while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as conn:
-            is_connected = connect_to_server(conn)
-            if is_connected:
-                start_controlling_car(conn)
+    factory = CommandClientFactory()
+    reactor.connectTCP(IP, CONTROLLER_PORT, factory)
+    reactor.run()

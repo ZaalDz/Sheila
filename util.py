@@ -1,15 +1,12 @@
-import socket
 from json import dumps, loads
 
 
-def send_command_dict(connection: socket.socket, command_dict: dict) -> None:
-
+def encode_command(command_dict: list) -> bytes:
     command_to_string = dumps(command_dict)
 
-    connection.send(command_to_string.encode())
+    return command_to_string.encode()
 
 
-def receive_command_dict(connection: socket.socket, buffer_size: int = 1024) -> dict:
-    response = connection.recv(buffer_size)
-    decoded_response = response.decode()
-    return loads(decoded_response)
+def decode_command(command_dict: bytes) -> list:
+    decoded_command = command_dict.decode()
+    return loads(decoded_command)

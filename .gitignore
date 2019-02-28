@@ -4,4 +4,5 @@ env/
 
 
 custom_settings.py
-test.py
+
+testing/

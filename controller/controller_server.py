@@ -1,30 +1,29 @@
-import socket
+from twisted.internet import reactor
+from twisted.internet.protocol import Factory
+from twisted.protocols.basic import LineReceiver
 
-from settings import CONTROLLER_PORT
-from util import send_command_dict, receive_command_dict
-from controller.keyboard_listener import run_keyboard_listener
 from controller.keyboard_listener import commands_list
+from settings import CONTROLLER_PORT
+from util import encode_command, decode_command
 
 
-def accepting_connection(my_socket: socket.socket) -> socket.socket:
-    print('Trying to accept connection')
-    connection, address = my_socket.accept()
-    print('Connection established')
-    return connection
+class Commander(LineReceiver):
+
+    def rawDataReceived(self, data):
+        pass
+
+    def connectionMade(self):
+        command: list = commands_list.get_command()
+        if command:
+            encoded_command: bytes = encode_command(command)
+            self.sendLine(encoded_command)
+
+    def lineReceived(self, data):
+        print(f'response: {decode_command(data)}')
 
 
 def send_commands():
-
-    run_keyboard_listener()
-
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as my_socket:
-        my_socket.bind(('0.0.0.0', CONTROLLER_PORT))
-        my_socket.listen(0)
-        connection = accepting_connection(my_socket)
-        with connection as conn:
-            while True:
-                command = commands_list.get_command()
-                if command:
-                    send_command_dict(conn, command)
-                    response = receive_command_dict(conn)
-                    print(f'response from car: {response}')
+    factory = Factory()
+    factory.protocol = Commander
+    reactor.listenTCP(CONTROLLER_PORT, factory)
+    reactor.run()

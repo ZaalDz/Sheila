@@ -1,5 +1,4 @@
 import datetime
-import time
 import asyncio
 import RPi.GPIO as GPIO
 from enums import MovementType
