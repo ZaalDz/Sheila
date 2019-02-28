@@ -27,7 +27,6 @@ def is_pressed_keys_valid(pressed_keys_set, expected_keys_set):
 def on_press(event):
     key = str(event)
     pressed_keys.add(key)
-
     if is_not_valid_move(key):
         pressed_keys.remove(key)
 

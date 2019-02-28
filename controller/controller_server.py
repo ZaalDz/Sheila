@@ -12,11 +12,19 @@ class Commander(LineReceiver):
     def rawDataReceived(self, data):
         pass
 
-    def connectionMade(self):
+    def send_commands(self):
+
         command: list = commands_list.get_command()
         if command:
             encoded_command: bytes = encode_command(command)
             self.sendLine(encoded_command)
+
+        reactor.callLater(0, self.send_commands)
+
+    def connectionMade(self):
+        print('Connection established')
+        self.setLineMode()
+        self.send_commands()
 
     def lineReceived(self, data):
         print(f'response: {decode_command(data)}')

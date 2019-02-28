@@ -7,7 +7,7 @@ from twisted.protocols.basic import LineReceiver
 from car.car import Car
 from enums import CommandKeys, MovementType
 from settings import CONTROLLER_PORT, IP
-from util import encode_command, decode_command
+from util import decode_command, encode_command
 
 car = Car(pwm_frequency=150)
 
@@ -45,6 +45,9 @@ class CommandReceiver(LineReceiver):
     def rawDataReceived(self, data):
         pass
 
+    def connectionMade(self):
+        self.setLineMode()
+
     def lineReceived(self, line):
         recv_command: list = decode_command(line)
         response = asyncio.run(create_async_tasks(recv_command))
@@ -55,8 +58,9 @@ class CommandReceiver(LineReceiver):
 class CommandClientFactory(ReconnectingClientFactory):
     protocol = CommandReceiver
 
-    def startedConnecting(self, connector):
-        print('Started to connect.')
+    def __init__(self):
+        super().__init__()
+        self.maxDelay = 5
 
     def buildProtocol(self, addr):
         print('Connected.')
@@ -64,16 +68,19 @@ class CommandClientFactory(ReconnectingClientFactory):
         return CommandReceiver()
 
     def clientConnectionLost(self, connector, reason):
-        print('Lost connection.  Reason:', reason)
+        print('Lost connection.')
         ReconnectingClientFactory.clientConnectionLost(self, connector, reason)
 
     def clientConnectionFailed(self, connector, reason):
-        print('Connection failed. Reason:', reason)
-        ReconnectingClientFactory.clientConnectionFailed(self, connector,
-                                                         reason)
+        print('Connection failed.')
+        ReconnectingClientFactory.clientConnectionFailed(self, connector, reason)
 
 
 def receive_commands():
     factory = CommandClientFactory()
     reactor.connectTCP(IP, CONTROLLER_PORT, factory)
     reactor.run()
+
+
+if __name__ == '__main__':
+    receive_commands()
