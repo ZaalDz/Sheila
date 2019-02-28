@@ -50,6 +50,7 @@ class CommandReceiver(LineReceiver):
 
     def lineReceived(self, line):
         recv_command: list = decode_command(line)
+        print(f"received command: {recv_command}")
         response = asyncio.run(create_async_tasks(recv_command))
         feedback = encode_command(response)
         self.sendLine(feedback)
