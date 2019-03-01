@@ -75,7 +75,7 @@ class CommandBuilder(metaclass=Singleton):
         right = not left
         backward = not forward
 
-        left_command = self.rotate_left() if left else self.rotate_right()
+        left_command = self.rotate_wheel(left_rotate=left, right_rotate=right)
         move = self.move() if forward else self.move(forward=False)
 
         final_command = {}
