@@ -1,8 +1,8 @@
 from threading import Lock
 
+from controller.singleton import Singleton
 from enums import MovementType, CommandKeys
 from settings import CarSettings
-from controller.singleton import Singleton
 
 movement_mapper = {
     "'w'": MovementType.FORWARD,
@@ -46,28 +46,28 @@ class CommandBuilder(metaclass=Singleton):
 
         return move_command
 
-    def rotate_left(self) -> dict:
+    def rotate_wheel(self, *, left_rotate: bool = False, right_rotate: bool = False):
 
         car_rotation_degree = self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE]
+        movement_type = MovementType.DEFAULT_CAMERA_POSITION
 
-        if car_rotation_degree > CarSettings.MIN_LEFT_TURN:
-            self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] -= CarSettings.WHEEL_ROTATE_SPEED
-
-        rotate_command = {
-            CommandKeys.CAR_ROTATION_DEGREE: self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE],
-        }
-        return rotate_command
-
-    def rotate_right(self) -> dict:
-
-        car_rotation_degree = self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE]
-
-        if car_rotation_degree < CarSettings.MAX_RIGHT_TURN:
-            self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] += CarSettings.WHEEL_ROTATE_SPEED
+        if left_rotate:
+            if car_rotation_degree > CarSettings.MIN_LEFT_TURN:
+                self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] -= CarSettings.WHEEL_ROTATE_SPEED
+            movement_type = MovementType.LEFT
+        elif right_rotate:
+            if car_rotation_degree < CarSettings.MAX_RIGHT_TURN:
+                self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] += CarSettings.WHEEL_ROTATE_SPEED
+            movement_type = MovementType.RIGHT
+        else:
+            self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE] = CarSettings.STARTING_ROTATION_POSITION
 
         rotate_command = {
+            CommandKeys.MOVEMENT_TYPE: movement_type,
+            CommandKeys.MOVE_DURATION: CarSettings.MOVE_DURATION,
             CommandKeys.CAR_ROTATION_DEGREE: self.base_user_command[CommandKeys.CAR_ROTATION_DEGREE],
         }
+
         return rotate_command
 
     def two_command(self, forward: bool, left: bool) -> dict:
@@ -76,8 +76,11 @@ class CommandBuilder(metaclass=Singleton):
         backward = not forward
 
         left_command = self.rotate_left() if left else self.rotate_right()
-        final_command = self.move() if forward else self.move(forward=False)
+        move = self.move() if forward else self.move(forward=False)
+
+        final_command = {}
         final_command.update(left_command)
+        final_command.update(move)
 
         if forward and left:
             movement_type = MovementType.FORWARD_LEFT
@@ -122,12 +125,12 @@ class CommandBuilder(metaclass=Singleton):
 
         return camera_command
 
-    def build_commands(self, event_keys: list) -> dict:
+    def build_commands(self, event_keys: list, *, default_wheel_position: bool = False) -> dict:
+
+        if default_wheel_position:
+            return self.rotate_wheel()
 
         movement_types = set([movement_mapper.get(each_event_key) for each_event_key in event_keys])
-
-        if len(movement_types) <= 1 and (MovementType.LEFT in movement_types or MovementType.RIGHT in movement_types):
-            return {}
 
         if {MovementType.FORWARD, MovementType.RIGHT}.issubset(movement_types):
             command = self.two_command(forward=True, left=False)
@@ -137,14 +140,23 @@ class CommandBuilder(metaclass=Singleton):
 
         elif {MovementType.BACKWARD, MovementType.RIGHT}.issubset(movement_types):
             command = self.two_command(forward=False, left=False)
+
         elif {MovementType.FORWARD, MovementType.LEFT}.issubset(movement_types):
             command = self.two_command(forward=True, left=True)
 
         elif MovementType.BACKWARD in movement_types:
             command = self.move(forward=False)
 
-        else:
+        elif MovementType.LEFT in movement_types:
+            command = self.rotate_wheel(left_rotate=True)
+
+        elif MovementType.RIGHT in movement_types:
+            command = self.rotate_wheel(right_rotate=True)
+
+        elif MovementType.FORWARD in movement_types:
             command = self.move(forward=True)
 
-        return command
+        else:
+            command = {}
 
+        return command

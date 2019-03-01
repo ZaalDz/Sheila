@@ -17,7 +17,9 @@ class CommandReceiver(LineReceiver):
     def lineReceived(self, line):
         recv_command: dict = decode_command(line)
         print(f"**** {recv_command}")
-        commands_queue.put(recv_command)
+
+        if commands_queue.qsize() == 0:
+            commands_queue.put_nowait(recv_command)
 
 
 class CommandClientFactory(ReconnectingClientFactory):

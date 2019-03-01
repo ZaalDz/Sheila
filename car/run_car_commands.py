@@ -2,7 +2,7 @@ from queue import Queue
 
 from car.car import Car
 from enums import CommandKeys, MovementType
-import time
+
 commands_queue = Queue(maxsize=1)
 
 car = Car(pwm_frequency=150)
@@ -13,7 +13,6 @@ def run_command():
         if commands_queue.qsize():
 
             receive_command = commands_queue.get_nowait()
-            time.sleep(1)
 
             print('=====>', receive_command)
 
@@ -23,6 +22,10 @@ def run_command():
 
             if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
                 car.move(speed, movement_type, move_duration)
+
+            elif movement_type in {MovementType.LEFT, MovementType.RIGHT, MovementType.DEFAULT_CAMERA_POSITION}:
+                degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
+                car.turn_lr(degree, move_duration)
 
             elif movement_type in {MovementType.FORWARD_RIGHT, MovementType.FORWARD_LEFT}:
                 degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
