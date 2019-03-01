@@ -32,7 +32,8 @@ def on_press(event):
 
     if is_pressed_keys_valid(pressed_keys, expected_keys):
         command = command_builder.build_commands(list(pressed_keys))
-        commands_list.add_command(command)
+        if command:
+            commands_list.add_command(command)
 
 
 def on_release(event):
@@ -44,9 +45,9 @@ def on_release(event):
     except:
         pass
 
-    if is_pressed_keys_valid(pressed_keys, expected_keys) and key in {"'a'", "'d'"}:
-        command = command_builder.build_commands(event_keys=[], set_wheel_default_position=True)
-        commands_list.add_command(command)
+    # if is_pressed_keys_valid(pressed_keys, expected_keys) and key in {"'a'", "'d'"}:
+    #     command = command_builder.build_commands(event_keys=[])
+    #     commands_list.add_command(command)
 
 
 def keyboard_listener():

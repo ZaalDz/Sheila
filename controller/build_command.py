@@ -126,23 +126,25 @@ class CommandBuilder(metaclass=Singleton):
 
         movement_types = set([movement_mapper.get(each_event_key) for each_event_key in event_keys])
 
-        if {MovementType.FORWARD, MovementType.LEFT} in movement_types:
-            command = self.two_command(forward=True, left=True)
+        if len(movement_types) <= 1 and (MovementType.LEFT in movement_types or MovementType.RIGHT in movement_types):
+            return {}
 
-        elif {MovementType.FORWARD, MovementType.RIGHT} in movement_types:
+        if {MovementType.FORWARD, MovementType.RIGHT}.issubset(movement_types):
             command = self.two_command(forward=True, left=False)
 
-        elif {MovementType.BACKWARD, MovementType.LEFT} in movement_types:
+        elif {MovementType.BACKWARD, MovementType.LEFT}.issubset(movement_types):
             command = self.two_command(forward=False, left=True)
 
-        elif {MovementType.BACKWARD, MovementType.RIGHT} in movement_types:
+        elif {MovementType.BACKWARD, MovementType.RIGHT}.issubset(movement_types):
             command = self.two_command(forward=False, left=False)
+        elif {MovementType.FORWARD, MovementType.LEFT}.issubset(movement_types):
+            command = self.two_command(forward=True, left=True)
 
         elif MovementType.BACKWARD in movement_types:
-            command = self.move()
+            command = self.move(forward=False)
 
         else:
-            command = self.move(forward=False)
+            command = self.move(forward=True)
 
         return command
 
