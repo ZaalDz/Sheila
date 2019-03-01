@@ -16,7 +16,7 @@ class CommandReceiver(LineReceiver):
 
     def lineReceived(self, line):
         recv_command: dict = decode_command(line)
-        print(f"received command: {recv_command}")
+        print(f"**** {recv_command}")
         commands_queue.put(recv_command)
 
 

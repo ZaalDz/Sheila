@@ -2,17 +2,21 @@ from queue import Queue
 
 from car.car import Car
 from enums import CommandKeys, MovementType
-
+import time
 commands_queue = Queue(maxsize=1)
 
 car = Car(pwm_frequency=150)
-commands_queue.get()
 
 
 def run_command():
     while True:
         if commands_queue.qsize():
+
             receive_command = commands_queue.get_nowait()
+            time.sleep(1)
+
+            print('=====>', receive_command)
+
             movement_type = receive_command[CommandKeys.MOVEMENT_TYPE]
             speed = receive_command[CommandKeys.SPEED]
             move_duration = receive_command[CommandKeys.MOVE_DURATION]
