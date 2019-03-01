@@ -15,6 +15,11 @@ class MovementType(BaseEnum):
     LEFT = 'left'
     RIGHT = 'right'
 
+    FORWARD_LEFT = 'forward_left'
+    FORWARD_RIGHT = 'forward_right'
+    BACKWARD_LEFT = 'backward_left'
+    BACKWARD_RIGHT = 'backward_right'
+
     DEFAULT_WHEEL_POSITION = 'default_wheel_position'
     DEFAULT_CAMERA_POSITION = 'default_camera_position'
 

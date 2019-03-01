@@ -1,5 +1,5 @@
 import datetime
-import asyncio
+import time
 import RPi.GPIO as GPIO
 from enums import MovementType
 from settings import CarSettings
@@ -35,59 +35,91 @@ class Car:
         GPIO.setup(self.__CAM_MOVE_PIN, GPIO.OUT)
         GPIO.output(self.__CAM_MOVE_PIN, GPIO.LOW)
 
-        self.__FR = GPIO.PWM(self.__FW_MOVE_PIN, self.pwm_frequency)
-        self.__BK = GPIO.PWM(self.__BW_MOVE_PIN, self.pwm_frequency)
+        self.forward = GPIO.PWM(self.__FW_MOVE_PIN, self.pwm_frequency)
+        self.backward = GPIO.PWM(self.__BW_MOVE_PIN, self.pwm_frequency)
 
         # Setup servos
-        self.__LR = GPIO.PWM(self.__LR_MOVE_PIN, 50)
-        self.__CAM = GPIO.PWM(self.__CAM_MOVE_PIN, 50)
+        self.left_right = GPIO.PWM(self.__LR_MOVE_PIN, 50)
+        self.camera = GPIO.PWM(self.__CAM_MOVE_PIN, 50)
 
-        self.__LR.start(0)
-        self.__CAM.start(0)
+        self.left_right.start(0)
+        self.camera.start(0)
 
-        asyncio.run(self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5))
-        asyncio.run(self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5))
+        self.set_camera_starting_position()
+        self.set_wheel_starting_position()
 
-        self.__FR.start(0)
-        self.__BK.start(0)
+        self.forward.start(0)
+        self.backward.start(0)
 
-    async def move(self, speed, direction, duration):
+    def set_camera_starting_position(self):
+        self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5)
+
+    def set_wheel_starting_position(self):
+        self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5)
+
+    def move(self, speed, direction, duration):
 
         if direction == MovementType.FORWARD:
             # switch off BW
-            self.__BK.ChangeDutyCycle(0)
+            self.backward.ChangeDutyCycle(0)
             # switch on FW
-            self.__FR.ChangeDutyCycle(speed)
-            await asyncio.sleep(duration)
+            self.forward.ChangeDutyCycle(speed)
+            time.sleep(duration)
             # stop motorb
-            self.__FR.ChangeDutyCycle(0)
+            self.forward.ChangeDutyCycle(0)
         elif direction == MovementType.BACKWARD:
             # switch off FW
-            self.__FR.ChangeDutyCycle(0)
+            self.forward.ChangeDutyCycle(0)
             # switch on BW
-            self.__BK.ChangeDutyCycle(speed)
-            await asyncio.sleep(duration)
+            self.backward.ChangeDutyCycle(speed)
+            time.sleep(duration)
             # stop motorb
-            self.__BK.ChangeDutyCycle(0)
+            self.backward.ChangeDutyCycle(0)
 
         return self.rc_state
 
-    async def turn_lr(self, degree, duration):
+    def turn_lr(self, degree, duration):
 
         if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
-            self.__LR.ChangeDutyCycle(degree)
-            await asyncio.sleep(duration)
-            self.__LR.ChangeDutyCycle(0)
+            self.left_right.ChangeDutyCycle(degree)
+            time.sleep(duration)
+            self.left_right.ChangeDutyCycle(0)
             self.rc_state['turn_degree'] = degree
 
         return self.rc_state
 
-    async def camera_position(self, degree, duration):
+    def forward_left_right(self, speed: float, degree: float, duration: float):
+
+        self.backward.ChangeDutyCycle(0)
+        self.forward.ChangeDutyCycle(speed)
+
+        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
+            self.left_right.ChangeDutyCycle(degree)
+
+        time.sleep(duration)
+
+        self.forward.ChangeDutyCycle(0)
+        self.left_right.ChangeDutyCycle(0)
+
+    def backward_left_right(self, speed: float, degree: float, duration: float):
+
+        self.forward.ChangeDutyCycle(0)
+        self.backward.ChangeDutyCycle(speed)
+
+        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
+            self.left_right.ChangeDutyCycle(degree)
+
+        time.sleep(duration)
+
+        self.backward.ChangeDutyCycle(0)
+        self.left_right.ChangeDutyCycle(0)
+
+    def camera_position(self, degree, duration):
 
         if CarSettings.MIN_CAMERA_POSITION <= degree <= CarSettings.MAX_CAMERA_POSITION:
-            self.__CAM.ChangeDutyCycle(degree)
-            await asyncio.sleep(duration)
-            self.__CAM.ChangeDutyCycle(0)
+            self.camera.ChangeDutyCycle(degree)
+            time.sleep(duration)
+            self.camera.ChangeDutyCycle(0)
             self.rc_state['camera_position'] = degree
 
         return self.rc_state

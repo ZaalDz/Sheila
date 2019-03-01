@@ -1,5 +1,3 @@
-import asyncio
-
 from twisted.internet import reactor
 from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.protocols.basic import LineReceiver
@@ -7,38 +5,26 @@ from twisted.protocols.basic import LineReceiver
 from car.car import Car
 from enums import CommandKeys, MovementType
 from settings import CONTROLLER_PORT, IP
-from util import decode_command, encode_command
+from util import decode_command
 
 car = Car(pwm_frequency=150)
 
 
-async def create_async_tasks(recv_command_list):
-    async_tasks = []
+def run_command(receive_command: dict):
+    movement_type = receive_command[CommandKeys.MOVEMENT_TYPE]
+    speed = receive_command[CommandKeys.SPEED]
+    move_duration = receive_command[CommandKeys.MOVE_DURATION]
 
-    for each_command in recv_command_list:
+    if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
+        car.move(speed, movement_type, move_duration)
 
-        movement_type = each_command[CommandKeys.MOVEMENT_TYPE]
+    elif movement_type in {MovementType.FORWARD_RIGHT, MovementType.FORWARD_LEFT}:
+        degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
+        car.forward_left_right(speed, degree, move_duration)
 
-        if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
-            speed = each_command[CommandKeys.SPEED]
-            move_duration = each_command[CommandKeys.MOVE_DURATION]
-            task = asyncio.create_task(car.move(speed=speed, direction=movement_type, duration=move_duration))
-
-        elif movement_type in {MovementType.LEFT, MovementType.RIGHT, MovementType.DEFAULT_WHEEL_POSITION}:
-            degree = each_command[CommandKeys.CAR_ROTATION_DEGREE]
-            rotate_duration = each_command[CommandKeys.ROTATE_DURATION]
-            task = asyncio.create_task(car.turn_lr(degree=degree, duration=rotate_duration))
-
-        elif movement_type in {MovementType.CAMERA_UP, MovementType.CAMERA_DOWN,
-                               MovementType.DEFAULT_CAMERA_POSITION}:
-
-            degree = each_command[CommandKeys.CAMERA_ROTATION_DEGREE]
-            rotate_duration = each_command[CommandKeys.ROTATE_DURATION]
-            task = asyncio.create_task(car.camera_position(degree, duration=rotate_duration))
-        # TODO: else?
-        async_tasks.append(task)
-
-    return await asyncio.gather(*async_tasks)
+    elif movement_type in {MovementType.BACKWARD_RIGHT, MovementType.BACKWARD_LEFT}:
+        degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
+        car.backward_left_right(speed, degree, move_duration)
 
 
 class CommandReceiver(LineReceiver):
@@ -49,11 +35,9 @@ class CommandReceiver(LineReceiver):
         self.setLineMode()
 
     def lineReceived(self, line):
-        recv_command: list = decode_command(line)
+        recv_command: dict = decode_command(line)
         print(f"received command: {recv_command}")
-        response = asyncio.run(create_async_tasks(recv_command))
-        feedback = encode_command(response)
-        self.sendLine(feedback)
+        run_command(recv_command)
 
 
 class CommandClientFactory(ReconnectingClientFactory):

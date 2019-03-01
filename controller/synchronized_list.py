@@ -8,12 +8,12 @@ class SynchronizedList(list, metaclass=Singleton):
         super().__init__()
         self.lock = Lock()
 
-    def add_command(self, command_list):
+    def add_command(self, command_dict: dict):
         with self.lock:
 
             # don't add command if it already added in list
-            if not self or self[-1] != command_list:
-                super().append(command_list)
+            if not self or self[-1] != command_dict:
+                super().append(command_dict)
 
     def get_command(self):
         """
