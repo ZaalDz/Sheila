@@ -20,6 +20,7 @@ def run_command():
             move_duration = receive_command[CommandKeys.MOVE_DURATION]
 
             if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
+                speed = receive_command[CommandKeys.SPEED]
                 car.move(speed, movement_type, move_duration)
 
             elif movement_type in {MovementType.LEFT, MovementType.RIGHT, MovementType.DEFAULT_CAMERA_POSITION}:
