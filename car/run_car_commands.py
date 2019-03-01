@@ -17,7 +17,6 @@ def run_command():
             print('=====>', receive_command)
 
             movement_type = receive_command[CommandKeys.MOVEMENT_TYPE]
-            speed = receive_command[CommandKeys.SPEED]
             move_duration = receive_command[CommandKeys.MOVE_DURATION]
 
             if movement_type in {MovementType.FORWARD, MovementType.BACKWARD}:
@@ -29,8 +28,10 @@ def run_command():
 
             elif movement_type in {MovementType.FORWARD_RIGHT, MovementType.FORWARD_LEFT}:
                 degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
+                speed = receive_command[CommandKeys.SPEED]
                 car.forward_left_right(speed, degree, move_duration)
 
             elif movement_type in {MovementType.BACKWARD_RIGHT, MovementType.BACKWARD_LEFT}:
                 degree = receive_command[CommandKeys.CAR_ROTATION_DEGREE]
+                speed = receive_command[CommandKeys.SPEED]
                 car.backward_left_right(speed, degree, move_duration)
