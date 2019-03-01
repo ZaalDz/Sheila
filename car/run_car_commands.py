@@ -6,12 +6,13 @@ from enums import CommandKeys, MovementType
 commands_queue = Queue(maxsize=1)
 
 car = Car(pwm_frequency=150)
+commands_queue.get()
 
 
 def run_command():
     while True:
-        receive_command = commands_queue.get()
-        if receive_command:
+        if commands_queue.qsize():
+            receive_command = commands_queue.get_nowait()
             movement_type = receive_command[CommandKeys.MOVEMENT_TYPE]
             speed = receive_command[CommandKeys.SPEED]
             move_duration = receive_command[CommandKeys.MOVE_DURATION]
