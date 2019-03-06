@@ -12,7 +12,10 @@ class SynchronizedList(list, metaclass=Singleton):
     def add_command(self, command_dict: dict):
         with self.lock:
             # don't add command if it already added in list
-            if not self or self[-1] != command_dict:
+            if not self:
+                super().append(command_dict)
+
+            elif self[-1] != command_dict:
                 self[0] = command_dict
                 # super().append(command_dict)
 
@@ -22,7 +25,6 @@ class SynchronizedList(list, metaclass=Singleton):
 
         """
         if self and self.is_open():
-            self.close()
             return super().pop(0)
 
         return None

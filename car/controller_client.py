@@ -3,7 +3,7 @@ from twisted.internet.protocol import ReconnectingClientFactory
 from twisted.protocols.basic import LineReceiver
 
 from settings import CONTROLLER_PORT, IP
-from util import decode_command
+from util import decode_command, encode_command
 from car.commander import run_command
 
 
@@ -19,7 +19,7 @@ class CommandReceiver(LineReceiver):
 
         run_command(recv_command)
 
-        self.sendLine('Done'.encode())
+        self.sendLine(encode_command({'Done': True}))
 
 
 class CommandClientFactory(ReconnectingClientFactory):

@@ -15,7 +15,10 @@ class Commander(LineReceiver):
     def send_commands(self):
 
         command: list = commands_list.get_command()
+        if command:
+            print(command, commands_list.is_open())
         if command and commands_list.is_open():
+            print(command)
             encoded_command: bytes = encode_command(command)
             self.sendLine(encoded_command)
             commands_list.close()
