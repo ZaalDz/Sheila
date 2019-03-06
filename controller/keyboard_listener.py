@@ -50,10 +50,6 @@ def on_release(event):
         commands_list.add_command(command)
 
 
-def keyboard_listener():
+def run_keyboard_listener():
     with Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
-
-
-def run_keyboard_listener():
-    Thread(target=keyboard_listener).start()

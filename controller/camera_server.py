@@ -20,7 +20,7 @@ def receive_video_stream():
 
         if not ret:
             print('frame empty')
-            continue
+            break
 
         cv2.imshow('image', frame)
 

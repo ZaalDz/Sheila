@@ -4,7 +4,7 @@ from twisted.protocols.basic import LineReceiver
 
 from settings import CONTROLLER_PORT, IP
 from util import decode_command
-from car.run_car_commands import commands_queue
+from car.commander import run_command
 
 
 class CommandReceiver(LineReceiver):
@@ -16,10 +16,10 @@ class CommandReceiver(LineReceiver):
 
     def lineReceived(self, line):
         recv_command: dict = decode_command(line)
-        print(f"**** {recv_command}")
 
-        if commands_queue.qsize() == 0:
-            commands_queue.put_nowait(recv_command)
+        run_command(recv_command)
+
+        self.sendLine('Done'.encode())
 
 
 class CommandClientFactory(ReconnectingClientFactory):

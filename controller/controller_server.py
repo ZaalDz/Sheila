@@ -15,9 +15,10 @@ class Commander(LineReceiver):
     def send_commands(self):
 
         command: list = commands_list.get_command()
-        if command:
+        if command and commands_list.is_open():
             encoded_command: bytes = encode_command(command)
             self.sendLine(encoded_command)
+            commands_list.close()
 
         reactor.callLater(0, self.send_commands)
 
@@ -27,6 +28,7 @@ class Commander(LineReceiver):
         self.send_commands()
 
     def lineReceived(self, data):
+        commands_list.open()
         print(f'response: {decode_command(data)}')
 
 
