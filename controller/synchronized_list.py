@@ -7,7 +7,8 @@ class SynchronizedList(list, metaclass=Singleton):
     def __init__(self):
         super().__init__()
         self.lock = Lock()
-        self._open = True
+        self.lock_2 = Lock()
+        self._open = 1
 
     def add_command(self, command_dict: dict):
         with self.lock:
@@ -24,19 +25,21 @@ class SynchronizedList(list, metaclass=Singleton):
         Returns: command dictionary or None if command list is empty
 
         """
-        if self and self.is_open():
-            return super().pop(0)
+        with self.lock:
+            if self and self.is_open():
+                self.close()
+                return super().pop(0)
 
-        return None
+            return None
 
     def open(self):
-        with self.lock:
-            self._open = True
+        with self.lock_2:
+            self._open += 1
 
     def close(self):
 
-        with self.lock:
-            self._open = False
+        with self.lock_2:
+            self._open -= 1
 
     def is_open(self):
         return self._open
