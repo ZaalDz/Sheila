@@ -1,8 +1,11 @@
-from threading import Lock
-from controller.singleton import Singleton
-from multiprocessing import Array
 import ctypes
+from multiprocessing import Array
+from threading import Lock
+
 import numpy as np
+
+from controller.gather_data import save_data
+from controller.singleton import Singleton
 
 shared_array = Array(ctypes.c_uint16, 720 * 480 * 3, lock=False)
 shared_frame = np.frombuffer(shared_array, dtype=np.uint16)
@@ -30,7 +33,7 @@ class SharedMemoryForCommands(metaclass=Singleton):
 
                     command = self.command
                     self.command = None
-
+                    save_data(shared_frame, command)
                     return command
             return None
 

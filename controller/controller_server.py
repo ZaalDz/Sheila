@@ -13,7 +13,6 @@ class Commander(LineReceiver):
         pass
 
     def send_commands(self):
-
         command: dict = shared_memory.get_command()
 
         if command:

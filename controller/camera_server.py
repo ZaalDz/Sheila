@@ -1,7 +1,9 @@
 import time
+
 import cv2
+
 from settings import STREAMING_PORT, IP
-import numpy as np
+
 
 def catch_open_stream():
     while True:

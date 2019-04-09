@@ -23,6 +23,10 @@ class CarSettings:
 
 VIDEO_SIZE = '720x480'
 
+FRAME_DATA_PATH = '/data/images'
+COMMAND_DATA_PATH = '/data/command'
+GATHER_DATA = False
+
 try:
     from custom_settings import *
 except:
