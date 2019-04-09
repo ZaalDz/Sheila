@@ -1,5 +1,3 @@
-from threading import Lock
-
 from controller.singleton import Singleton
 from enums import MovementType, CommandKeys
 from settings import CarSettings
@@ -17,7 +15,6 @@ movement_mapper = {
 class CommandBuilder(metaclass=Singleton):
 
     def __init__(self):
-        self.lock = Lock()
 
         self.base_user_command = {
             CommandKeys.MOVE_DURATION: CarSettings.MOVE_DURATION,

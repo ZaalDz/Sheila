@@ -2,7 +2,7 @@ from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
 
-from controller.keyboard_listener import commands_list
+from controller.keyboard_listener import shared_memory
 from settings import CONTROLLER_PORT
 from util import encode_command, decode_command
 
@@ -14,7 +14,7 @@ class Commander(LineReceiver):
 
     def send_commands(self):
 
-        command: dict = commands_list.get_command()
+        command: dict = shared_memory.get_command()
 
         if command:
             encoded_command: bytes = encode_command(command)
@@ -28,7 +28,7 @@ class Commander(LineReceiver):
         self.send_commands()
 
     def lineReceived(self, data):
-        commands_list.open()
+        shared_memory.open()
         print(f'response: {decode_command(data)}')
 
 

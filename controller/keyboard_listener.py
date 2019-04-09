@@ -1,9 +1,9 @@
-from threading import Thread
 from pynput.keyboard import Listener
-from controller.synchronized_list import SynchronizedList
-from controller.build_command import CommandBuilder, movement_mapper
 
-commands_list = SynchronizedList()
+from controller.build_command import CommandBuilder, movement_mapper
+from controller.shared_memory import SharedMemory
+
+shared_memory = SharedMemory()
 command_builder = CommandBuilder()
 
 expected_keys = set(movement_mapper.keys())
@@ -33,11 +33,10 @@ def on_press(event):
     if is_pressed_keys_valid(pressed_keys, expected_keys):
         command = command_builder.build_commands(list(pressed_keys))
         if command:
-            commands_list.add_command(command)
+            shared_memory.add_command(command)
 
 
 def on_release(event):
-
     key = str(event)
 
     try:
@@ -47,7 +46,7 @@ def on_release(event):
 
     if is_pressed_keys_valid(pressed_keys, expected_keys) and key in {"'a'", "'d'"}:
         command = command_builder.build_commands(event_keys=[], default_wheel_position=True)
-        commands_list.add_command(command)
+        shared_memory.add_command(command)
 
 
 def run_keyboard_listener():
