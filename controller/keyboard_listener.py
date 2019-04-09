@@ -1,9 +1,9 @@
 from pynput.keyboard import Listener
 
 from controller.build_command import CommandBuilder, movement_mapper
-from controller.shared_memory import SharedMemory
+from controller.shared_memory import SharedMemoryForCommands
 
-shared_memory = SharedMemory()
+shared_memory = SharedMemoryForCommands()
 command_builder = CommandBuilder()
 
 expected_keys = set(movement_mapper.keys())

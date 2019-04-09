@@ -1,7 +1,7 @@
 import time
 import cv2
 from settings import STREAMING_PORT, IP
-
+import numpy as np
 
 def catch_open_stream():
     while True:
@@ -12,7 +12,7 @@ def catch_open_stream():
         time.sleep(2)
 
 
-def receive_video_stream():
+def receive_video_stream(shared_frame):
     cap = catch_open_stream()
 
     while True:
@@ -21,7 +21,7 @@ def receive_video_stream():
         if not ret:
             print('frame empty')
             break
-
+        shared_frame[:] = frame
         cv2.imshow('image', frame)
 
         if cv2.waitKey(1) & 0XFF == ord('p'):

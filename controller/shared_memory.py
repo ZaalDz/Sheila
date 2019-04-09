@@ -1,9 +1,15 @@
 from threading import Lock
-
 from controller.singleton import Singleton
+from multiprocessing import Array
+import ctypes
+import numpy as np
+
+shared_array = Array(ctypes.c_uint16, 720 * 480 * 3, lock=False)
+shared_frame = np.frombuffer(shared_array, dtype=np.uint16)
+shared_frame = shared_frame.reshape((480, 720, 3))
 
 
-class SharedMemory(metaclass=Singleton):
+class SharedMemoryForCommands(metaclass=Singleton):
 
     def __init__(self):
         self.command_lock = Lock()
@@ -17,15 +23,15 @@ class SharedMemory(metaclass=Singleton):
             self.command = command_dict
 
     def get_command(self):
-
         with self.command_lock:
-            if self.command and self.is_open():
-                self.close()
+            if self.command:
+                if self.is_open():
+                    self.close()
 
-                command = self.command
-                self.command = None
-                return command
+                    command = self.command
+                    self.command = None
 
+                    return command
             return None
 
     def open(self):
