@@ -31,7 +31,3 @@ def receive_video_stream(shared_frame):
 
     cap.release()
     cv2.destroyAllWindows()
-
-
-if __name__ == '__main__':
-    receive_video_stream()

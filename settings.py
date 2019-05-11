@@ -6,8 +6,8 @@ IP = '*'
 class CarSettings:
     CAR_SPEED = 1
     ROTATE_SPEED = 1
-    MOVE_DURATION = 0.4
-    ROTATE_DURATION = 0.4
+    MOVE_DURATION = 0.2
+    ROTATE_DURATION = 0.2
 
 
 VIDEO_SIZE = '720x480'
