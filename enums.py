@@ -20,18 +20,13 @@ class MovementType(BaseEnum):
     BACKWARD_LEFT = 'backward_left'
     BACKWARD_RIGHT = 'backward_right'
 
-    DEFAULT_WHEEL_POSITION = 'default_wheel_position'
-    DEFAULT_CAMERA_POSITION = 'default_camera_position'
-
     CAMERA_UP = 'camera_up'
     CAMERA_DOWN = 'camera_down'
 
 
 class CommandKeys(BaseEnum):
-
     MOVEMENT_TYPE = 'movement_type'
-    SPEED = 'speed'
+    MOVE_SPEED = 'speed'
+    ROTATE_SPEED = 'rotate_speed'
     MOVE_DURATION = 'duration'
     ROTATE_DURATION = 'rotate_duration'
-    CAMERA_ROTATION_DEGREE = 'camera_rotation_degree'
-    CAR_ROTATION_DEGREE = 'car_rotation_degree'

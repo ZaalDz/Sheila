@@ -1,128 +1,59 @@
-import datetime
+from gpiozero import Motor
+
 import time
-import RPi.GPIO as GPIO
-from enums import MovementType
-from settings import CarSettings
 
 
 class Car:
+    def __init__(self, speed: float = 1):
+        self.speed = speed
 
-    def __init__(self, pwm_frequency=5000, rc_state=None):
+        self.forward_left_motor = Motor(forward=20, backward=21)
+        self.forward_right_motor = Motor(forward=12, backward=16)
+        self.backward_left_motor = Motor(forward=24, backward=25)
+        self.backward_right_motor = Motor(forward=18, backward=23)
+        self.motors = [self.forward_left_motor, self.forward_right_motor, self.backward_left_motor,
+                       self.backward_right_motor]
 
-        self.__testName = str(datetime.datetime.now()).replace(' ', '_')
-        self.rc_state = rc_state if rc_state else {}
-        self.__FW_MOVE_PIN = 40
-        self.__BW_MOVE_PIN = 38
-        self.__LR_MOVE_PIN = 36
-        self.__CAM_MOVE_PIN = 32
+    def stop(self):
+        for each_motor in self.motors:
+            each_motor.stop()
 
-        # Prevent setting distructive frequency
-        if 100 <= pwm_frequency <= 5000:
-            self.pwm_frequency = pwm_frequency
-        else:
-            self.pwm_frequency = 5000
-
-        # Set gpio pin mode
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setwarnings(False)
-
-        GPIO.setup(self.__FW_MOVE_PIN, GPIO.OUT)
-        GPIO.output(self.__FW_MOVE_PIN, GPIO.LOW)
-        GPIO.setup(self.__BW_MOVE_PIN, GPIO.OUT)
-        GPIO.output(self.__BW_MOVE_PIN, GPIO.LOW)
-        GPIO.setup(self.__LR_MOVE_PIN, GPIO.OUT)
-        GPIO.output(self.__LR_MOVE_PIN, GPIO.LOW)
-        GPIO.setup(self.__CAM_MOVE_PIN, GPIO.OUT)
-        GPIO.output(self.__CAM_MOVE_PIN, GPIO.LOW)
-
-        self.forward = GPIO.PWM(self.__FW_MOVE_PIN, self.pwm_frequency)
-        self.backward = GPIO.PWM(self.__BW_MOVE_PIN, self.pwm_frequency)
-
-        # Setup servos
-        self.left_right = GPIO.PWM(self.__LR_MOVE_PIN, 50)
-        self.camera = GPIO.PWM(self.__CAM_MOVE_PIN, 50)
-
-        self.left_right.start(0)
-        self.camera.start(0)
-
-        self.set_camera_starting_position()
-        self.set_wheel_starting_position()
-
-        self.forward.start(0)
-        self.backward.start(0)
-
-    def set_camera_starting_position(self):
-        self.camera_position(CarSettings.STARTING_CAMERA_POSITION, 0.5)
-
-    def set_wheel_starting_position(self):
-        self.turn_lr(CarSettings.STARTING_ROTATION_POSITION, 0.5)
-
-    def move(self, speed, direction, duration):
-
-        if direction == MovementType.FORWARD:
-            # switch off BW
-            self.backward.ChangeDutyCycle(0)
-            # switch on FW
-            self.forward.ChangeDutyCycle(speed)
-            time.sleep(duration)
-            # stop motorb
-            self.forward.ChangeDutyCycle(0)
-        elif direction == MovementType.BACKWARD:
-            # switch off FW
-            self.forward.ChangeDutyCycle(0)
-            # switch on BW
-            self.backward.ChangeDutyCycle(speed)
-            time.sleep(duration)
-            # stop motorb
-            self.backward.ChangeDutyCycle(0)
-
-        return self.rc_state
-
-    def turn_lr(self, degree, duration):
-
-        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
-            self.left_right.ChangeDutyCycle(degree)
-            time.sleep(duration)
-            self.left_right.ChangeDutyCycle(0)
-            self.rc_state['turn_degree'] = degree
-
-        return self.rc_state
-
-    def forward_left_right(self, speed: float, degree: float, duration: float):
-
-        self.backward.ChangeDutyCycle(0)
-        self.forward.ChangeDutyCycle(speed)
-
-        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
-            self.left_right.ChangeDutyCycle(degree)
+    def forward(self, duration: float, speed: float = None):
+        speed = max(min(speed if speed else self.speed, 1), 0)
+        self.forward_left_motor.forward(speed=speed)
+        self.forward_right_motor.forward(speed=speed)
+        self.backward_left_motor.forward(speed=speed)
+        self.backward_right_motor.forward(speed=speed)
 
         time.sleep(duration)
+        self.stop()
 
-        self.forward.ChangeDutyCycle(0)
-        self.left_right.ChangeDutyCycle(0)
-
-    def backward_left_right(self, speed: float, degree: float, duration: float):
-
-        self.forward.ChangeDutyCycle(0)
-        self.backward.ChangeDutyCycle(speed)
-
-        if CarSettings.MIN_LEFT_TURN <= degree <= CarSettings.MAX_RIGHT_TURN:
-            self.left_right.ChangeDutyCycle(degree)
+    def backward(self, duration: float, speed: float = None):
+        speed = max(min(speed if speed else self.speed, 1), 0)
+        self.forward_left_motor.backward(speed=speed)
+        self.forward_right_motor.backward(speed=speed)
+        self.backward_left_motor.backward(speed=speed)
+        self.backward_right_motor.backward(speed=speed)
 
         time.sleep(duration)
+        self.stop()
 
-        self.backward.ChangeDutyCycle(0)
-        self.left_right.ChangeDutyCycle(0)
+    def left(self, duration: float, speed: float = None):
+        speed = max(min(speed if speed else self.speed, 1), 0)
+        self.forward_left_motor.backward(speed=speed)
+        self.forward_right_motor.forward(speed=speed)
+        self.backward_left_motor.backward(speed=speed)
+        self.backward_right_motor.forward(speed=speed)
 
-    def camera_position(self, degree, duration):
+        time.sleep(duration)
+        self.stop()
 
-        if CarSettings.MIN_CAMERA_POSITION <= degree <= CarSettings.MAX_CAMERA_POSITION:
-            self.camera.ChangeDutyCycle(degree)
-            time.sleep(duration)
-            self.camera.ChangeDutyCycle(0)
-            self.rc_state['camera_position'] = degree
+    def right(self, duration: float, speed: float = None):
+        speed = max(min(speed if speed else self.speed, 1), 0)
+        self.forward_left_motor.forward(speed=speed)
+        self.forward_right_motor.backward(speed=speed)
+        self.backward_left_motor.forward(speed=speed)
+        self.backward_right_motor.backward(speed=speed)
 
-        return self.rc_state
-
-    def __del__(self):
-        GPIO.cleanup()
+        time.sleep(duration)
+        self.stop()
