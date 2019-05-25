@@ -1,50 +1,54 @@
-from gpiozero import Motor
-
-
 class Car:
     def __init__(self, speed: float = 1):
         self.speed = speed
 
-        self.left_motors_1 = Motor(forward=24, backward=25)
-        self.left_motors_2 = Motor(forward=18, backward=23)
-
-        self.right_motors_1 = Motor(forward=12, backward=16)
-        self.right_motors_2 = Motor(forward=20, backward=21)
+        self.forward_left_motor = Motor(forward=20, backward=21)
+        self.forward_right_motor = Motor(forward=12, backward=16)
+        self.backward_left_motor = Motor(forward=24, backward=25)
+        self.backward_right_motor = Motor(forward=18, backward=23)
+        self.motors = [self.forward_left_motor, self.forward_right_motor, self.backward_left_motor,
+                       self.backward_right_motor]
 
     def stop(self):
-        self.left_motors_1.stop()
-        self.left_motors_2.stop()
-        self.right_motors_1.stop()
-        self.right_motors_2.stop()
+        for each_motor in self.motors:
+            each_motor.stop()
 
-    def forward(self, speed: float = None):
-        self.stop()
+    def forward(self, duration: float, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
-        self.left_motors_1.forward(speed=speed)
-        self.left_motors_2.forward(speed=speed)
-        self.right_motors_1.forward(speed=speed)
-        self.right_motors_2.forward(speed=speed)
+        self.forward_left_motor.forward(speed=speed)
+        self.forward_right_motor.forward(speed=speed)
+        self.backward_left_motor.forward(speed=speed)
+        self.backward_right_motor.forward(speed=speed)
 
-    def backward(self, speed: float = None):
-        speed = max(min(speed if speed else self.speed, 1), 0)
+        time.sleep(duration)
         self.stop()
-        self.left_motors_1.backward(speed=speed)
-        self.left_motors_2.backward(speed=speed)
-        self.right_motors_1.backward(speed=speed)
-        self.right_motors_2.backward(speed=speed)
 
-    def left(self, speed: float = None):
-        self.stop()
+    def backward(self, duration: float, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
-        self.left_motors_1.backward(speed=speed)
-        self.left_motors_2.backward(speed=speed)
-        self.right_motors_1.forward(speed=speed)
-        self.right_motors_2.forward(speed=speed)
+        self.forward_left_motor.backward(speed=speed)
+        self.forward_right_motor.backward(speed=speed)
+        self.backward_left_motor.backward(speed=speed)
+        self.backward_right_motor.backward(speed=speed)
 
-    def right(self, speed: float = None):
+        time.sleep(duration)
         self.stop()
+
+    def left(self, duration: float, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
-        self.left_motors_1.forward(speed=speed)
-        self.left_motors_2.forward(speed=speed)
-        self.right_motors_1.backward(speed=speed)
-        self.right_motors_2.backward(speed=speed)
+        self.forward_left_motor.backward(speed=speed)
+        self.forward_right_motor.forward(speed=speed)
+        self.backward_left_motor.backward(speed=speed)
+        self.backward_right_motor.forward(speed=speed)
+
+        time.sleep(duration)
+        self.stop()
+
+    def right(self, duration: float, speed: float = None):
+        speed = max(min(speed if speed else self.speed, 1), 0)
+        self.forward_left_motor.forward(speed=speed)
+        self.forward_right_motor.backward(speed=speed)
+        self.backward_left_motor.forward(speed=speed)
+        self.backward_right_motor.backward(speed=speed)
+
+        time.sleep(duration)
+        self.stop()
