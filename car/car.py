@@ -1,3 +1,8 @@
+from gpiozero import Motor
+
+import time
+
+
 class Car:
     def __init__(self, speed: float = 1):
         self.speed = speed
