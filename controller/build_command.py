@@ -28,7 +28,7 @@ class CommandBuilder(metaclass=Singleton):
         """
 
         forward_command = {
-            CommandKeys.MOVEMENT_TYPE: MovementType.FORWARD,
+            CommandKeys.COMMAND_TYPE: MovementType.FORWARD,
             CommandKeys.MOVE_SPEED: self.base_user_command[CommandKeys.MOVE_SPEED],
             CommandKeys.MOVE_DURATION: self.base_user_command[CommandKeys.MOVE_DURATION]
         }
@@ -38,7 +38,7 @@ class CommandBuilder(metaclass=Singleton):
     def backward(self):
 
         backward_command = {
-            CommandKeys.MOVEMENT_TYPE: MovementType.BACKWARD,
+            CommandKeys.COMMAND_TYPE: MovementType.BACKWARD,
             CommandKeys.MOVE_SPEED: self.base_user_command[CommandKeys.MOVE_SPEED],
             CommandKeys.MOVE_DURATION: self.base_user_command[CommandKeys.MOVE_DURATION]
         }
@@ -48,7 +48,7 @@ class CommandBuilder(metaclass=Singleton):
     def left(self):
 
         left_rotate_command = {
-            CommandKeys.MOVEMENT_TYPE: MovementType.LEFT,
+            CommandKeys.COMMAND_TYPE: MovementType.LEFT,
             CommandKeys.ROTATE_DURATION: CarSettings.ROTATE_DURATION,
             CommandKeys.ROTATE_SPEED: self.base_user_command[CommandKeys.ROTATE_SPEED],
         }
@@ -58,14 +58,29 @@ class CommandBuilder(metaclass=Singleton):
     def right(self):
 
         right_rotate_command = {
-            CommandKeys.MOVEMENT_TYPE: MovementType.RIGHT,
+            CommandKeys.COMMAND_TYPE: MovementType.RIGHT,
             CommandKeys.ROTATE_DURATION: CarSettings.ROTATE_DURATION,
             CommandKeys.ROTATE_SPEED: self.base_user_command[CommandKeys.ROTATE_SPEED],
         }
 
         return right_rotate_command
 
-    def build_commands(self, event_keys: list) -> dict:
+    def stop(self):
+        stop_command = {
+            CommandKeys.COMMAND_TYPE: MovementType.STOP
+        }
+
+        return stop_command
+
+    def build_commands(self, event_keys: list, *, stop_car: bool = False, autonomous: bool = False, frame=None) -> dict:
+
+        if autonomous:
+            assert frame
+            pass
+
+        if stop_car:
+            command = self.stop()
+            return command
 
         movement_types = set([movement_mapper.get(each_event_key) for each_event_key in event_keys])
 

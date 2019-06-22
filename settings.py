@@ -16,6 +16,8 @@ FRAME_DATA_PATH = '/data/images'
 COMMAND_DATA_PATH = '/data/command'
 GATHER_DATA = False
 
+COMMAND_TYPE_FOR_SAVING = set(['forward', 'backward', 'left', 'right'])
+
 try:
     from custom_settings import *
 except:

@@ -1,28 +1,34 @@
 import json
-import os
+from pathlib import Path
 from time import time
 
 import cv2
 
 from enums import CommandKeys
-from settings import COMMAND_DATA_PATH, FRAME_DATA_PATH, GATHER_DATA
+from settings import COMMAND_DATA_PATH, FRAME_DATA_PATH, GATHER_DATA, COMMAND_TYPE_FOR_SAVING
 
 
-def save_data(frame, command, *, image_dir=FRAME_DATA_PATH, command_dir=COMMAND_DATA_PATH, gather_data=GATHER_DATA):
+def save_data(frame, command, *, image_data_dir=FRAME_DATA_PATH, command_data_dir=COMMAND_DATA_PATH,
+              gather_data=GATHER_DATA):
+    image_data_dir = Path(image_data_dir)
+    command_data_dir = Path(command_data_dir)
     if gather_data is False:
         return
 
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
-    if not os.path.exists(command_dir):
-        os.makedirs(command_dir)
+    command_type = command[CommandKeys.COMMAND_TYPE]
 
-    header = command[CommandKeys.MOVEMENT_TYPE]
-    name = f"{header}_{str(time()).replace('.', '')}"
-    image_name = os.path.join(image_dir, f'{name}.jpg')
-    command_name = os.path.join(command_dir, f'{name}.json')
+    if command_type in COMMAND_TYPE_FOR_SAVING:
+        final_image_data_path = image_data_dir / command_type
+        final_command_data_path = command_data_dir / command_type
 
-    cv2.imwrite(image_name, frame)
+        final_image_data_path.mkdir(exist_ok=True)
+        final_command_data_path.mkdir(exist_ok=True)
 
-    with open(command_name, 'w') as fl:
-        json.dump(command, fl)
+        name = f"{command_type}_{str(time()).replace('.', '')}"
+        image_name = final_image_data_path / f'{name}.jpg'
+        command_name = final_command_data_path / f'{name}.json'
+
+        cv2.imwrite(image_name.absolute(), frame)
+
+        with open(command_name.absolute(), 'w') as fl:
+            json.dump(command, fl)
