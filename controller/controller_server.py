@@ -2,9 +2,11 @@ from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 from twisted.protocols.basic import LineReceiver
 
-from controller.keyboard_listener import shared_memory
 from settings import CONTROLLER_PORT
 from util import encode_command, decode_command
+from controller.variable_initialization import GlobalVariables
+
+shared_memory = GlobalVariables().shared_memory
 
 
 class Commander(LineReceiver):
