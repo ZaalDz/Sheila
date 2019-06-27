@@ -4,8 +4,8 @@ IP = '*'
 
 
 class CarSettings:
-    CAR_SPEED = 0.5
-    ROTATE_SPEED = 0.5
+    CAR_SPEED = 0.4
+    ROTATE_SPEED = 0.3
     MOVE_DURATION = 0.2
     ROTATE_DURATION = 0.2
 
