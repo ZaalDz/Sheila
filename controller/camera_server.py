@@ -7,11 +7,11 @@ from settings import STREAMING_PORT, IP
 
 def catch_open_stream():
     while True:
-        cap = cv2.VideoCapture(f'udp://{IP}:{STREAMING_PORT}', cv2.CAP_FFMPEG)
+        cap = cv2.VideoCapture(f'udp://{IP}:{STREAMING_PORT}')
         if cap.isOpened():
             return cap
         print("Trying to connect video streaming")
-        time.sleep(2)
+        time.sleep(3)
 
 
 def receive_video_stream(shared_frame):
