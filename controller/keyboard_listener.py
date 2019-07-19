@@ -1,5 +1,5 @@
 from pynput.keyboard import Listener
-from controller.variable_initialization import GlobalVariables
+from controller.global_variables import GlobalVariables
 
 
 def is_not_valid_move(key, pressed_keys):

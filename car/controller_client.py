@@ -19,7 +19,7 @@ class CommandReceiver(LineReceiver):
 
         run_command(recv_command)
 
-        self.sendLine(encode_command({'Done': True}))
+        self.sendLine(encode_command(recv_command))
 
 
 class CommandClientFactory(ReconnectingClientFactory):

@@ -4,7 +4,7 @@ from twisted.protocols.basic import LineReceiver
 
 from settings import CONTROLLER_PORT
 from util import encode_command, decode_command
-from controller.variable_initialization import GlobalVariables
+from controller.global_variables import GlobalVariables
 
 shared_memory = GlobalVariables().shared_memory
 

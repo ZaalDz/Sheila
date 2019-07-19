@@ -6,14 +6,15 @@ import numpy as np
 from controller.build_command import CommandBuilder, movement_mapper
 from controller.shared_memory import SharedMemoryForCommands
 from controller.singleton import Singleton
+from settings import FRAME_HEIGHT, FRAME_WIDTH
 
 
 class GlobalVariables(metaclass=Singleton):
     def __init__(self):
-        shared_array = Array(ctypes.c_uint16, 720 * 480 * 3, lock=False)
+        shared_array = Array(ctypes.c_uint16, FRAME_HEIGHT * FRAME_WIDTH * 3, lock=False)
         shared_frame = np.frombuffer(shared_array, dtype=np.uint16)
 
-        self.shared_frame = shared_frame.reshape((480, 720, 3))
+        self.shared_frame = shared_frame.reshape((FRAME_HEIGHT, FRAME_WIDTH, 3))
 
         self.shared_memory = SharedMemoryForCommands(self.shared_frame)
         self.command_builder = CommandBuilder()
