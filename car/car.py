@@ -4,6 +4,7 @@ from gpiozero import Motor
 class Car:
     def __init__(self, speed: float = 1):
         self.speed = speed
+        self.diff = 0.04
 
         self.forward_right_motor = Motor(forward=12, backward=16)
         self.backward_right_motor = Motor(forward=21, backward=20)
@@ -20,7 +21,7 @@ class Car:
     def forward(self, speed: float = None):
 
         speed = max(min(speed if speed else self.speed, 1), 0)
-        right_speed = max(0.0, speed - 0.04)
+        right_speed = max(0.0, speed - self.diff)
 
         self.forward_left_motor.forward(speed=speed)
         self.forward_right_motor.forward(speed=right_speed)
@@ -29,7 +30,7 @@ class Car:
 
     def backward(self, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
-        right_speed = max(0.0, speed - 0.04)
+        right_speed = max(0.0, speed - self.diff)
 
         self.forward_left_motor.backward(speed=speed)
         self.forward_right_motor.backward(speed=right_speed)
@@ -39,7 +40,7 @@ class Car:
     def left(self, speed: float = None):
 
         speed = max(min(speed if speed else self.speed, 1), 0)
-        right_speed = max(0.0, speed - 0.04)
+        right_speed = max(0.0, speed - self.diff)
 
         self.forward_left_motor.backward(speed=speed)
         self.forward_right_motor.forward(speed=right_speed)
@@ -48,7 +49,7 @@ class Car:
 
     def right(self, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
-        right_speed = max(0.0, speed - 0.04)
+        right_speed = max(0.0, speed - self.diff)
 
         self.forward_left_motor.forward(speed=speed)
         self.forward_right_motor.backward(speed=right_speed)
