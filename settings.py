@@ -12,12 +12,11 @@ class CarSettings:
 
 FRAME_WIDTH = 1280
 FRAME_HEIGHT = 720
-# VIDEO_SIZE = '720x480'
 VIDEO_SIZE = f'{FRAME_WIDTH}x{FRAME_HEIGHT}'
 
 FRAME_DATA_PATH = '/data/images'
 COMMAND_DATA_PATH = '/data/command'
-GATHER_DATA = False
+GATHER_DATA = True
 
 COMMAND_TYPE_FOR_SAVING = set(['forward', 'backward', 'left', 'right'])
 

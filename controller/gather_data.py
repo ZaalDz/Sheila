@@ -15,6 +15,9 @@ def save_data(frame, command, *, image_data_dir=FRAME_DATA_PATH, command_data_di
     if gather_data is False:
         return
 
+    image_data_dir.mkdir(exist_ok=True)
+    command_data_dir.mkdir(exist_ok=True)
+
     command_type = command[CommandKeys.COMMAND_TYPE]
 
     if command_type in COMMAND_TYPE_FOR_SAVING:
@@ -28,7 +31,7 @@ def save_data(frame, command, *, image_data_dir=FRAME_DATA_PATH, command_data_di
         image_name = final_image_data_path / f'{name}.jpg'
         command_name = final_command_data_path / f'{name}.json'
 
-        cv2.imwrite(image_name.absolute(), frame)
+        cv2.imwrite(str(image_name.absolute()), frame)
 
-        with open(command_name.absolute(), 'w') as fl:
+        with open(str(command_name.absolute()), 'w') as fl:
             json.dump(command, fl)

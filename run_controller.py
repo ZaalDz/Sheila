@@ -8,6 +8,7 @@ from controller.global_variables import GlobalVariables
 
 if __name__ == '__main__':
     global_variables = GlobalVariables()
-    Process(target=receive_video_stream, args=(global_variables.shared_frame,)).start()
+    Process(target=receive_video_stream,
+            args=(global_variables.shared_frame, global_variables.driver, global_variables.driver_color)).start()
     Thread(target=run_keyboard_listener).start()
     send_commands()

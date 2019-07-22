@@ -20,13 +20,14 @@ class CommandBuilder(metaclass=Singleton):
             CommandKeys.MOVE_SPEED: CarSettings.CAR_SPEED,
             CommandKeys.ROTATE_SPEED: CarSettings.ROTATE_SPEED
         }
+        self.driver = Driver.MANUAL
 
-    @staticmethod
-    def change_driver(command, autonomous_driver: bool = False):
+    def change_driver(self, command, autonomous_driver: bool = False):
         if autonomous_driver:
-            command[CommandKeys.DRIVER] = Driver.AUTONOMOUS
+            self.driver = Driver.AUTONOMOUS
         else:
-            command[CommandKeys.DRIVER] = Driver.MANUAL
+            self.driver = Driver.MANUAL
+        command[CommandKeys.DRIVER] = self.driver
 
     def forward(self, autonomous_driver: bool = False) -> dict:
         """

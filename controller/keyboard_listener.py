@@ -1,6 +1,8 @@
 from pynput.keyboard import Listener
 from controller.global_variables import GlobalVariables
 
+global_variable = GlobalVariables()
+
 
 def is_not_valid_move(key, pressed_keys):
     return key == "'a'" and "'d'" in pressed_keys or \
@@ -16,33 +18,35 @@ def is_pressed_keys_valid(pressed_keys_set, expected_keys_set):
 
 
 def on_press(event):
-    global_variable = GlobalVariables()
 
     key = str(event)
-    global_variable.pressed_keys.add(key)
-    if is_not_valid_move(global_variable.pressed_keys, key):
-        global_variable.pressed_keys.remove(key)
+    if key == "'c'":
+        global_variable.change_driver()
 
-    if is_pressed_keys_valid(global_variable.pressed_keys, global_variable.expected_keys):
-        command = global_variable.command_builder.build_commands(list(global_variable.pressed_keys))
-        if command:
-            global_variable.shared_memory.add_command(command)
+    if global_variable.is_manual_driver():
+        global_variable.pressed_keys.add(key)
+        if is_not_valid_move(global_variable.pressed_keys, key):
+            global_variable.pressed_keys.remove(key)
+
+        if is_pressed_keys_valid(global_variable.pressed_keys, global_variable.expected_keys):
+            command = global_variable.command_builder.build_commands(list(global_variable.pressed_keys))
+            if command:
+                global_variable.shared_memory.add_command(command)
 
 
 def on_release(event):
-    global_variable = GlobalVariables()
 
     key = str(event)
-
-    try:
-        global_variable.pressed_keys.remove(key)
-        for each in global_variable.possible_movements:
-            if each in global_variable.pressed_keys:
-                return
-        command = global_variable.command_builder.build_commands([], stop_car=True)
-        global_variable.shared_memory.add_command(command)
-    except:
-        pass
+    if global_variable.is_manual_driver():
+        try:
+            global_variable.pressed_keys.remove(key)
+            for each in global_variable.possible_movements:
+                if each in global_variable.pressed_keys:
+                    return
+            command = global_variable.command_builder.build_commands([], stop_car=True)
+            global_variable.shared_memory.add_command(command)
+        except:
+            pass
 
 
 def run_keyboard_listener():
