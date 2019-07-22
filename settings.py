@@ -20,6 +20,9 @@ GATHER_DATA = True
 
 COMMAND_TYPE_FOR_SAVING = set(['forward', 'backward', 'left', 'right'])
 
+MODEL_PATH = 'weights/sheila_88.7_v_0_1.pth'
+MODEL_INPUT_SIZE = 224
+
 try:
     from custom_settings import *
 except:

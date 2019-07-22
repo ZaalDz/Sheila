@@ -91,12 +91,10 @@ class CommandBuilder(metaclass=Singleton):
 
         return stop_command
 
-    def build_commands(self, event_keys: list, *, stop_car: bool = False, autonomous: bool = False, frame=None) -> dict:
+    def build_commands(self, event_keys: list, *, stop_car: bool = False, autonomous: bool = False) -> dict:
 
         movement_types = set(
-            [movement_mapper.get(each_event_key) for each_event_key in event_keys])  # if not autonomous \
-        #    else autonomous_driver(frame)
-        # TODO implement actual autonomous driving function
+            [movement_mapper.get(each_event_key) for each_event_key in event_keys])
 
         if stop_car:
             command = self.stop(autonomous_driver=autonomous)

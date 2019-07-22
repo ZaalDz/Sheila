@@ -25,6 +25,7 @@ class CommandKeys(BaseEnum):
     MOVE_DURATION = 'duration'
     ROTATE_DURATION = 'rotate_duration'
     DRIVER = 'driver'
+    ACCURACY = 'accuracy'
 
 
 class Driver(BaseEnum):

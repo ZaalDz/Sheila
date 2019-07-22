@@ -1,7 +1,7 @@
 .idea/
 __pycache__
 env/
-
+weights/
 
 custom_settings.py
 

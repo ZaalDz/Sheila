@@ -7,6 +7,7 @@ from threading import Lock
 
 from util import encode_command, decode_command
 from controller.global_variables import GlobalVariables
+from autonomy.commander import get_command_from_autonomous_system
 
 global_variables = GlobalVariables()
 shared_memory = global_variables.shared_memory
@@ -36,7 +37,8 @@ class Commander(LineReceiver):
         if global_variables.is_manual_driver() and self.is_open():
             command: dict = shared_memory.get_command()
         elif global_variables.is_autonomy_driver() and self.is_open():
-            command = None
+            frame = global_variables.shared_memory.shared_frame
+            command = get_command_from_autonomous_system(frame)
         else:
             command = None
 
