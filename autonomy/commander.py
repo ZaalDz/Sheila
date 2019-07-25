@@ -55,9 +55,7 @@ def get_predicted_class_and_accuracy(model: Any, image, image_size: int):
 
 def get_command_from_autonomous_system(frame):
     index, accuracy = get_predicted_class_and_accuracy(mind_of_sheila, frame, MODEL_INPUT_SIZE)
-    print(accuracy)
     if accuracy > 50:
-        print(index)
         movement_type = index_to_movement_type[index]
         key = movement_to_press_key[movement_type]
         command = global_variables.command_builder.build_commands([key], autonomous=True)

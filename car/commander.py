@@ -1,5 +1,5 @@
 from car.car import Car
-from enums import CommandKeys, MovementType
+from enums import CommandKeys, MovementType, Driver
 
 car = Car()
 
@@ -8,6 +8,9 @@ def run_command(receive_command):
     print('=====>', receive_command)
 
     movement_type = receive_command[CommandKeys.COMMAND_TYPE]
+    driver = receive_command[CommandKeys.DRIVER]
+    if driver == Driver.AUTONOMOUS and car.not_in_safe_distance():
+        car.stop()
 
     if movement_type == MovementType.FORWARD:
         move_speed = receive_command[CommandKeys.MOVE_SPEED]
