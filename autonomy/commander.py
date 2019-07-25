@@ -37,7 +37,7 @@ def get_loader(image_size: int) -> Any:
 def image_loader(image, image_size: int):
     loader = get_loader(image_size)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(image)
+    image = Image.fromarray(image.astype('uint8'))
     image = loader(image).float().unsqueeze(0)
     return image
 
@@ -45,18 +45,23 @@ def image_loader(image, image_size: int):
 def get_predicted_class_and_accuracy(model: Any, image, image_size: int):
     image = image_loader(image, image_size)
     prediction = model(image)
-    prediction = softmax(prediction, dim=1).detach().numpy()
     label_index = np.argmax(prediction)
+    prediction = softmax(prediction, dim=1).detach().numpy()
     scores = prediction[0]
     percentage = scores[label_index]
 
-    return label_index, round(percentage * 100, 2)
+    return int(label_index), round(percentage * 100, 2)
 
 
 def get_command_from_autonomous_system(frame):
     index, accuracy = get_predicted_class_and_accuracy(mind_of_sheila, frame, MODEL_INPUT_SIZE)
-    movement_type = index_to_movement_type[index]
-    key = movement_to_press_key[movement_type]
-    command = global_variables.command_builder.build_commands([key], autonomous=True)
-    command[CommandKeys.ACCURACY] = accuracy
+    print(accuracy)
+    if accuracy > 50:
+        print(index)
+        movement_type = index_to_movement_type[index]
+        key = movement_to_press_key[movement_type]
+        command = global_variables.command_builder.build_commands([key], autonomous=True)
+        command[CommandKeys.ACCURACY] = accuracy
+        return command
+    command = global_variables.command_builder.build_commands([], stop_car=True,autonomous=True)
     return command

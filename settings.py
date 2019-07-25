@@ -16,11 +16,11 @@ VIDEO_SIZE = f'{FRAME_WIDTH}x{FRAME_HEIGHT}'
 
 FRAME_DATA_PATH = '/data/images'
 COMMAND_DATA_PATH = '/data/command'
-GATHER_DATA = True
+GATHER_DATA = False
 
 COMMAND_TYPE_FOR_SAVING = set(['forward', 'backward', 'left', 'right'])
 
-MODEL_PATH = 'weights/sheila_88.7_v_0_1.pth'
+MODEL_PATH = 'weights/sheila_88.7_v_0_2.pth'
 MODEL_INPUT_SIZE = 224
 
 try:
