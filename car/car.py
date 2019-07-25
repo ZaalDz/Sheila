@@ -14,7 +14,7 @@ class Car:
         self.forward_left_motor = Motor(forward=23, backward=18)
         self.backward_left_motor = Motor(forward=24, backward=25)
 
-        self.distance = DistanceSensor(13, 6)
+        self.sensor = DistanceSensor(13, 6)
 
     def stop(self):
         self.forward_left_motor.stop()
@@ -23,7 +23,8 @@ class Car:
         self.backward_right_motor.stop()
 
     def not_in_safe_distance(self, distance_threshold=SAFE_DISTANCE_THRESHOLD):
-        return self.distance > distance_threshold
+        distance = round(self.sensor.distance * 100, 4)
+        return distance > distance_threshold
 
     def forward(self, speed: float = None):
         speed = max(min(speed if speed else self.speed, 1), 0)
